@@ -105,6 +105,21 @@ function whichKey(e) {
   else         { return (e.charCode !== null && e.charCode !== undefined) ? e.charCode : e.keyCode; }
 }
 
+function isNumeric(string) {
+
+  return (string - parseFloat(string) + 1) >= 0;
+}
+
+function getWindowScrollTop() {
+
+  var supportPageOffset = window.pageYOffset !== undefined;
+  var isCSS1Compat = ((document.compatMode || "") === "CSS1Compat");
+
+  if      (supportPageOffset) { return window.pageYOffset;                 }
+  else if (isCSS1Compat)      { return document.documentElement.scrollTop; }
+  else                        { return document.body.scrollTop;            }
+}
+
 function closest(htmlElement, selector) {
 
 }
@@ -472,9 +487,7 @@ Plugin.prototype = {
         this.loadUtils();
       } else {
         // wait until the load event so we don't block any other requests e.g. the flags image
-        $(window).load(function() {
-          that.loadUtils();
-        });
+        window.addEventListener('load', function() { that.loadUtils(); });
       }
     } else {
       this.utilsScriptDeferred.resolve();
@@ -637,9 +650,11 @@ Plugin.prototype = {
   _handleInvalidKey: function() {
     var that = this;
 
-    this.telInput.trigger("invalidkey").addClass("iti-invalid-key");
+    this.telInput.trigger("invalidkey");
+    addClass(this.element, "iti-invalid-key");
+
     setTimeout(function() {
-      that.telInput.removeClass("iti-invalid-key");
+      removeClass(that.element, "iti-invalid-key");
     }, 100);
   },
 
@@ -703,7 +718,7 @@ Plugin.prototype = {
   _getCursorFromLeftChar: function(val, guessCursor, originalLeftChars) {
     for (var i = guessCursor; i > 0; i--) {
       var leftChar = val.charAt(i - 1);
-      if ($.isNumeric(leftChar) || val.substr(i - 2, 2) == originalLeftChars) {
+      if (isNumeric(leftChar) || val.substr(i - 2, 2) == originalLeftChars) {
         return i;
       }
     }
@@ -714,7 +729,7 @@ Plugin.prototype = {
   // after a reformat we need to make sure there are still the same number of digits to the right of the cursor
   _getCursorFromDigitsOnRight: function(val, digitsOnRight) {
     for (var i = val.length - 1; i >= 0; i--) {
-      if ($.isNumeric(val.charAt(i))) {
+      if (isNumeric(val.charAt(i))) {
         if (--digitsOnRight === 0) {
           return i;
         }
@@ -728,7 +743,7 @@ Plugin.prototype = {
   _getDigitsOnRight: function(val, selectionEnd) {
     var digitsOnRight = 0;
     for (var i = selectionEnd; i < val.length; i++) {
-      if ($.isNumeric(val.charAt(i))) {
+      if (isNumeric(val.charAt(i))) {
         digitsOnRight++;
       }
     }
@@ -845,7 +860,7 @@ Plugin.prototype = {
   // decide where to position dropdown (depends on position within viewport, and scroll)
   _setDropdownPosition: function() {
     var inputTop = this.telInput.offset().top,
-      windowTop = $(window).scrollTop(),
+      windowTop = getWindowScrollTop(),
       // dropdownFitsBelow = (dropdownBottom < windowBottom)
       dropdownFitsBelow = (inputTop + this.telInput.outerHeight() + this.dropdownHeight < windowTop + $(window).height()),
       dropdownFitsAbove = (inputTop - this.dropdownHeight > windowTop);
@@ -1226,7 +1241,7 @@ Plugin.prototype = {
       for (var i = 0; i < number.length; i++) {
         var c = number.charAt(i);
         // if char is number
-        if ($.isNumeric(c)) {
+        if (isNumeric(c)) {
           numericChars += c;
           // if current numericChars make a valid dial code
           if (this.countryCodes[numericChars]) {

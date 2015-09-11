@@ -109,6 +109,20 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             return e.charCode !== null && e.charCode !== undefined ? e.charCode : e.keyCode;
         }
     }
+    function isNumeric(string) {
+        return string - parseFloat(string) + 1 >= 0;
+    }
+    function getWindowScrollTop() {
+        var supportPageOffset = window.pageYOffset !== undefined;
+        var isCSS1Compat = (document.compatMode || "") === "CSS1Compat";
+        if (supportPageOffset) {
+            return window.pageYOffset;
+        } else if (isCSS1Compat) {
+            return document.documentElement.scrollTop;
+        } else {
+            return document.body.scrollTop;
+        }
+    }
     function closest(htmlElement, selector) {}
     // keep track of if the window.load event has fired as impossible to check after the fact
     window.addEventListener("load", function() {
@@ -395,7 +409,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     this.loadUtils();
                 } else {
                     // wait until the load event so we don't block any other requests e.g. the flags image
-                    $(window).load(function() {
+                    window.addEventListener("load", function() {
                         that.loadUtils();
                     });
                 }
@@ -533,9 +547,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         // alert the user to an invalid key event
         _handleInvalidKey: function() {
             var that = this;
-            this.telInput.trigger("invalidkey").addClass("iti-invalid-key");
+            this.telInput.trigger("invalidkey");
+            addClass(this.element, "iti-invalid-key");
             setTimeout(function() {
-                that.telInput.removeClass("iti-invalid-key");
+                removeClass(that.element, "iti-invalid-key");
             }, 100);
         },
         // when autoFormat is enabled: handle various key events on the input:
@@ -585,7 +600,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _getCursorFromLeftChar: function(val, guessCursor, originalLeftChars) {
             for (var i = guessCursor; i > 0; i--) {
                 var leftChar = val.charAt(i - 1);
-                if ($.isNumeric(leftChar) || val.substr(i - 2, 2) == originalLeftChars) {
+                if (isNumeric(leftChar) || val.substr(i - 2, 2) == originalLeftChars) {
                     return i;
                 }
             }
@@ -594,7 +609,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         // after a reformat we need to make sure there are still the same number of digits to the right of the cursor
         _getCursorFromDigitsOnRight: function(val, digitsOnRight) {
             for (var i = val.length - 1; i >= 0; i--) {
-                if ($.isNumeric(val.charAt(i))) {
+                if (isNumeric(val.charAt(i))) {
                     if (--digitsOnRight === 0) {
                         return i;
                     }
@@ -606,7 +621,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _getDigitsOnRight: function(val, selectionEnd) {
             var digitsOnRight = 0;
             for (var i = selectionEnd; i < val.length; i++) {
-                if ($.isNumeric(val.charAt(i))) {
+                if (isNumeric(val.charAt(i))) {
                     digitsOnRight++;
                 }
             }
@@ -699,7 +714,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // decide where to position dropdown (depends on position within viewport, and scroll)
         _setDropdownPosition: function() {
-            var inputTop = this.telInput.offset().top, windowTop = $(window).scrollTop(), // dropdownFitsBelow = (dropdownBottom < windowBottom)
+            var inputTop = this.telInput.offset().top, windowTop = getWindowScrollTop(), // dropdownFitsBelow = (dropdownBottom < windowBottom)
             dropdownFitsBelow = inputTop + this.telInput.outerHeight() + this.dropdownHeight < windowTop + $(window).height(), dropdownFitsAbove = inputTop - this.dropdownHeight > windowTop;
             // dropdownHeight - 1 for border
             var cssTop = !dropdownFitsBelow && dropdownFitsAbove ? "-" + (this.dropdownHeight - 1) + "px" : "";
@@ -1006,7 +1021,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 for (var i = 0; i < number.length; i++) {
                     var c = number.charAt(i);
                     // if char is number
-                    if ($.isNumeric(c)) {
+                    if (isNumeric(c)) {
                         numericChars += c;
                         // if current numericChars make a valid dial code
                         if (this.countryCodes[numericChars]) {
