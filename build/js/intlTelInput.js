@@ -78,28 +78,25 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         }
         return -1;
     }
+    function trim(text) {
+        if (text) {
+            return (text + "").replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "");
+        } else {
+            return "";
+        }
+    }
     function hasClass(htmlElement, className) {
-        var c = className;
-        var regex = new RegExp("^\\s*" + c + "$|^\\s*" + c + "\\s+|\\s+" + c + "\\s+|\\s+" + c + "\\s*$");
-        return Boolean(htmlElement.className.match(regex));
+        return (" " + htmlElement.className + " ").indexOf(" " + className) >= 0;
     }
     function removeClass(htmlElement, className) {
-        var c = className;
-        var regex = new RegExp("^\\s*" + c + "$|^\\s*" + c + "\\s+|\\s+" + c + "\\s+|\\s+" + c + "\\s*$");
-        htmlElement.className.replace(regex, "");
+        var elementClassName = " " + htmlElement.className + " ";
+        htmlElement.className = trim(elementClassName.replace(" " + className, ""));
     }
     function addClass(htmlElement, className) {
         if (!htmlElement.className) {
             htmlElement.className = className;
         } else if (!hasClass(htmlElement, className)) {
             htmlElement.className += " " + className;
-        }
-    }
-    function trim(text) {
-        if (text) {
-            return (text + "").replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "");
-        } else {
-            return "";
         }
     }
     function whichKey(e) {
@@ -311,7 +308,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             if (!this.isMobile) {
                 // now we can grab the dropdown height, and hide it properly
                 this.dropdownHeight = this.countryList.outerHeight();
-                this.countryList.removeClass("v-hide").addClass("hide");
+                removeClass(this.countryList[0], "v-hide");
+                addClass(this.countryList[0], "hide");
                 // this is useful in lots of places
                 this.countryListItems = this.countryList.children(".country");
             }
@@ -720,7 +718,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this._highlightListItem(activeListItem);
             }
             // show it
-            this.countryList.removeClass("hide");
+            removeClass(this.countryList[0], "hide");
             if (activeListItem.length) {
                 this._scrollTo(activeListItem);
             }
@@ -899,8 +897,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // remove highlighting from other list items and highlight the given item
         _highlightListItem: function(listItem) {
-            this.countryListItems.removeClass("highlight");
-            listItem.addClass("highlight");
+            removeClass(this.countryListItems[0], "highlight");
+            addClass(listItem[0], "highlight");
         },
         // find the country data for the given country code
         // the ignoreOnlyCountriesOption is only used during init() while parsing the onlyCountries array
@@ -938,9 +936,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this.countryList.val(countryCode);
             } else {
                 // update the active list item
-                this.countryListItems.removeClass("active");
+                removeClass(this.countryListItems[0], "active");
                 if (countryCode) {
-                    this.countryListItems.find(".iti-flag." + countryCode).first().closest(".country").addClass("active");
+                    addClass(this.countryListItems.find(".iti-flag." + countryCode).first().closest(".country")[0], "active");
                 }
             }
         },
@@ -977,6 +975,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _closeDropdown: function() {
             addClass(this.countryList[0], "hide");
             // update the arrow
+            // FIXME: arrow is a child of selectedFlag no selectedFlagInner
             this.selectedFlagInner.children(".arrow").removeClass("up");
             // unbind key events
             $(document).off(this.ns);
