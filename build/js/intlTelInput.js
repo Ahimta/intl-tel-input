@@ -741,8 +741,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             var inputTop = this.telInput.offset().top, windowTop = getWindowScrollTop(), // dropdownFitsBelow = (dropdownBottom < windowBottom)
             dropdownFitsBelow = inputTop + this.telInput.outerHeight() + this.dropdownHeight < windowTop + $(window).height(), dropdownFitsAbove = inputTop - this.dropdownHeight > windowTop;
             // dropdownHeight - 1 for border
+            // FIXME: cssTop sometimes has two leading negative signs (e.g: --1px)
             var cssTop = !dropdownFitsBelow && dropdownFitsAbove ? "-" + (this.dropdownHeight - 1) + "px" : "";
-            this.countryList[0].style.top = cssTop == "--1px" ? "-1px" : cssTop;
+            this.countryList[0].style.top = cssTop;
         },
         // we only bind dropdown listeners when the dropdown is open
         _bindDropdownListeners: function() {
