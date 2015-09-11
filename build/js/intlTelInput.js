@@ -86,11 +86,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         }
     }
     function hasClass(htmlElement, className) {
-        return (" " + htmlElement.className + " ").indexOf(" " + className) >= 0;
+        return (htmlElement.className + " ").indexOf(className + " ") >= 0;
     }
     function removeClass(htmlElement, className) {
-        var elementClassName = " " + htmlElement.className + " ";
-        htmlElement.className = trim(elementClassName.replace(" " + className, ""));
+        var elementClassName = htmlElement.className + " ";
+        htmlElement.className = trim(elementClassName.replace(className + " ", ""));
     }
     function addClass(htmlElement, className) {
         if (!htmlElement.className) {
@@ -897,7 +897,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // remove highlighting from other list items and highlight the given item
         _highlightListItem: function(listItem) {
-            removeClass(this.countryListItems[0], "highlight");
+            this.countryListItems.removeClass("highlight");
             addClass(listItem[0], "highlight");
         },
         // find the country data for the given country code
@@ -936,7 +936,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this.countryList.val(countryCode);
             } else {
                 // update the active list item
-                removeClass(this.countryListItems[0], "active");
+                this.countryListItems.removeClass("active");
                 if (countryCode) {
                     addClass(this.countryListItems.find(".iti-flag." + countryCode).first().closest(".country")[0], "active");
                 }
