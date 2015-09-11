@@ -125,16 +125,14 @@ var storage = {
 
   get: function(key) {
 
-    if      (window.localStorage) { return window.localStorage.getItem(key); }
-    else if ($.cookie)            { return $.cookie(key);                    }
-    else                          { return "";                               }
+    if (window.localStorage) { return window.localStorage.getItem(key); }
+    else                     { return "";                               }
   },
 
-  set: function(key, value, options) {
+  set: function(key, value) {
 
-    if      (window.localStorage) { return window.localStorage.setItem(key, value); }
-    else if ($.cookie)            { return $.cookie(key, value, options);           }
-    else                          { return "";                                      }
+    if (window.localStorage) { return window.localStorage.setItem(key, value); }
+    else                     { return "";                                      }
   }
 };
 
