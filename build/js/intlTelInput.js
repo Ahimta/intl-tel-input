@@ -124,6 +124,26 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         }
     }
     function closest(htmlElement, selector) {}
+    var storage = {
+        get: function(key) {
+            if (window.localStorage) {
+                return window.localStorage.getItem(key);
+            } else if ($.cookie) {
+                return $.cookie(key);
+            } else {
+                return "";
+            }
+        },
+        set: function(key, value, options) {
+            if (window.localStorage) {
+                return window.localStorage.setItem(key, value);
+            } else if ($.cookie) {
+                return $.cookie(key, value, options);
+            } else {
+                return "";
+            }
+        }
+    };
     // keep track of if the window.load event has fired as impossible to check after the fact
     window.addEventListener("load", function() {
         windowLoaded = true;
@@ -425,7 +445,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _loadAutoCountry: function() {
             var that = this;
             // check for cookie
-            var cookieAutoCountry = $.cookie ? $.cookie("itiAutoCountry") : "";
+            var cookieAutoCountry = storage.get("itiAutoCountry");
             if (cookieAutoCountry) {
                 $.fn[pluginName].autoCountry = cookieAutoCountry;
             }
@@ -441,11 +461,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (typeof this.options.geoIpLookup === "function") {
                     this.options.geoIpLookup(function(countryCode) {
                         $.fn[pluginName].autoCountry = countryCode.toLowerCase();
-                        if ($.cookie) {
-                            $.cookie("itiAutoCountry", $.fn[pluginName].autoCountry, {
-                                path: "/"
-                            });
-                        }
+                        storage.set("itiAutoCountry", $.fn[pluginName].autoCountry, {
+                            path: "/"
+                        });
                         // tell all instances the auto country is ready
                         // TODO: this should just be the current instances
                         // UPDATE: use setTimeout in case their geoIpLookup function calls this callback straight away (e.g. if they have already done the geo ip lookup somewhere else). Using setTimeout means that the current thread of execution will finish before executing this, which allows the plugin to finish initialising.
