@@ -120,6 +120,18 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             return document.body.scrollTop;
         }
     }
+    function getWindowInnerHeight() {
+        if (window.innerHeight === undefined) {
+            return document.documentElement.clientHeight;
+        } else {
+            return window.innerHeight;
+        }
+    }
+    function getDocumentHeight() {
+        var html = document.documentElement;
+        var body = document.body;
+        return Math.max(body.scrollHeight, html.scrollHeight, body.offsetHeight, html.offsetHeight, body.clientHeight, html.clientHeight);
+    }
     function closest(htmlElement, selector) {}
     var storage = {
         get: function(key) {
@@ -307,7 +319,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 removeClass(this.countryList[0], "v-hide");
                 addClass(this.countryList[0], "hide");
                 // this is useful in lots of places
-                this.countryListItems = this.countryList.children(".country");
+                this.countryListItems = $(this.countryList[0].querySelectorAll(".country"));
             }
         },
         // add a country <li> to the countryList <ul> container
@@ -730,7 +742,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             dropdownFitsBelow = inputTop + this.telInput.outerHeight() + this.dropdownHeight < windowTop + $(window).height(), dropdownFitsAbove = inputTop - this.dropdownHeight > windowTop;
             // dropdownHeight - 1 for border
             var cssTop = !dropdownFitsBelow && dropdownFitsAbove ? "-" + (this.dropdownHeight - 1) + "px" : "";
-            this.countryList.css("top", cssTop);
+            this.countryList[0].style.top = cssTop == "--1px" ? "-1px" : cssTop;
         },
         // we only bind dropdown listeners when the dropdown is open
         _bindDropdownListeners: function() {
@@ -789,22 +801,22 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // highlight the next/prev item in the list (and ensure it is visible)
         _handleUpDownKey: function(key) {
-            var current = this.countryList.children(".highlight").first();
-            var next = key == keys.UP ? current.prev() : current.next();
-            if (next.length) {
+            var current = this.countryList[0].querySelector(".highlight");
+            var next = key == keys.UP ? current.previousSibling : current.nextSibling;
+            if (next) {
                 // skip the divider
-                if (hasClass(next[0], "divider")) {
-                    next = key == keys.UP ? next.prev() : next.next();
+                if (hasClass(next, "divider")) {
+                    next = key == keys.UP ? next.previousSibling : next.nextSibling;
                 }
-                this._highlightListItem(next);
-                this._scrollTo(next);
+                this._highlightListItem($(next));
+                this._scrollTo($(next));
             }
         },
         // select the currently highlighted item
         _handleEnterKey: function() {
-            var currentCountry = this.countryList.children(".highlight").first();
-            if (currentCountry.length) {
-                this._selectListItem(currentCountry);
+            var currentCountry = this.countryList[0].querySelector(".highlight");
+            if (currentCountry) {
+                this._selectListItem($(currentCountry));
             }
         },
         // find the first list item whose name starts with the query string
