@@ -133,6 +133,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         return Math.max(body.scrollHeight, html.scrollHeight, body.offsetHeight, html.offsetHeight, body.clientHeight, html.clientHeight);
     }
     function closest(htmlElement, selector) {}
+    function forEach(elements, fn) {
+        for (var i = 0; i < elements.length; i++) {
+            fn(elements[i]);
+        }
+    }
     var storage = {
         get: function(key) {
             if (window.localStorage) {
@@ -738,8 +743,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // bind all the dropdown-related listeners: mouseover, click, click-off, keydown
             this._bindDropdownListeners();
             // update the arrow
-            // FIXME: arrow is a child of selectedFlag not selectedFlagInner
-            this.selectedFlagInner.children(".arrow").addClass("up");
+            // FIXED: arrow is a child of selectedFlag not selectedFlagInner
+            addClass(this.selectedFlagInner[0].parentNode.querySelector(".arrow"), "up");
         },
         // decide where to position dropdown (depends on position within viewport, and scroll)
         _setDropdownPosition: function() {
@@ -912,7 +917,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // remove highlighting from other list items and highlight the given item
         _highlightListItem: function(listItem) {
-            this.countryListItems.removeClass("highlight");
+            forEach(this.countryListItems, function(element) {
+                removeClass(element, "highlight");
+            });
             addClass(listItem[0], "highlight");
         },
         // find the country data for the given country code
@@ -952,9 +959,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this.countryList[0].value = countryCode;
             } else {
                 // update the active list item
-                this.countryListItems.removeClass("active");
+                forEach(this.countryListItems, function(element) {
+                    removeClass(element, "active");
+                });
                 if (countryCode) {
-                    addClass(this.countryListItems.find(".iti-flag." + countryCode).first().closest(".country")[0], "active");
+                    addClass(this.countryList[0].querySelector("[data-country-code=" + countryCode + "]"), "active");
                 }
             }
         },
@@ -991,8 +1000,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _closeDropdown: function() {
             addClass(this.countryList[0], "hide");
             // update the arrow
-            // FIXME: arrow is a child of selectedFlag no selectedFlagInner
-            this.selectedFlagInner.children(".arrow").removeClass("up");
+            // FIXED: arrow is a child of selectedFlag no selectedFlagInner
+            removeClass(this.selectedFlagInner[0].parentNode.querySelector(".arrow"), "up");
             // unbind key events
             $(document).off(this.ns);
             // unbind click-off-to-close
