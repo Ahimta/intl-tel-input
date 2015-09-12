@@ -315,7 +315,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this._appendListItems(this.countries, "");
             if (!this.isMobile) {
                 // now we can grab the dropdown height, and hide it properly
-                this.dropdownHeight = this.countryList.outerHeight();
+                this.dropdownHeight = this.countryList.offsetHeight;
                 removeClass(this.countryList[0], "v-hide");
                 addClass(this.countryList[0], "hide");
                 // this is useful in lots of places
@@ -745,8 +745,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // decide where to position dropdown (depends on position within viewport, and scroll)
         _setDropdownPosition: function() {
-            var inputTop = this.telInput.offset().top, windowTop = getWindowScrollTop(), // dropdownFitsBelow = (dropdownBottom < windowBottom)
-            dropdownFitsBelow = inputTop + this.telInput.outerHeight() + this.dropdownHeight < windowTop + $(window).height(), dropdownFitsAbove = inputTop - this.dropdownHeight > windowTop;
+            var inputTop = this.element.getBoundingClientRect().top, windowTop = getWindowScrollTop(), // dropdownFitsBelow = (dropdownBottom < windowBottom)
+            dropdownFitsBelow = inputTop + this.element.offsetHeight + this.dropdownHeight < windowTop + getWindowInnerHeight(), dropdownFitsAbove = inputTop - this.dropdownHeight > windowTop;
             // dropdownHeight - 1 for border
             // FIXME: cssTop sometimes has two leading negative signs (e.g: --1px)
             var cssTop = !dropdownFitsBelow && dropdownFitsAbove ? "-" + (this.dropdownHeight - 1) + "px" : "";
@@ -1004,7 +1004,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // check if an element is visible within it's container, else scroll until it is
         _scrollTo: function(element, middle) {
-            var container = this.countryList, containerHeight = container.height(), containerTop = container.offset().top, containerBottom = containerTop + containerHeight, elementHeight = element.outerHeight(), elementTop = element.offset().top, elementBottom = elementTop + elementHeight, newScrollTop = elementTop - containerTop + container.scrollTop(), middleOffset = containerHeight / 2 - elementHeight / 2;
+            var container = this.countryList, containerHeight = container[0].clientHeight, containerTop = container[0].getBoundingClientRect().top, containerBottom = containerTop + containerHeight, elementHeight = element[0].offsetHeight, elementTop = element[0].getBoundingClientRect().top, elementBottom = elementTop + elementHeight, newScrollTop = elementTop - containerTop + container.scrollTop(), middleOffset = containerHeight / 2 - elementHeight / 2;
             if (elementTop < containerTop) {
                 // scroll up
                 if (middle) {
