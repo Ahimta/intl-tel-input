@@ -660,17 +660,17 @@ Plugin.prototype = {
   // prevent deleting the plus (if not in nationalMode)
   _ensurePlus: function() {
     if (!this.options.nationalMode) {
-      var val = this.element.value,
-        input = this.telInput[0];
+      var val = this.element.value;
+
       if (val.charAt(0) != "+") {
         // newCursorPos is current pos + 1 to account for the plus we are about to add
-        var newCursorPos = (this.isGoodBrowser) ? input.selectionStart + 1 : 0;
+        var newCursorPos = (this.isGoodBrowser) ? this.element.selectionStart + 1 : 0;
 
-        // FIXME: tests pass when this line is commented out -_-
+        // FIXME: tests still pass when this line is commented out -_-
         this.element.value = "+" + val;
 
         if (this.isGoodBrowser) {
-          input.setSelectionRange(newCursorPos, newCursorPos);
+          this.element.setSelectionRange(newCursorPos, newCursorPos);
         }
       }
     }
@@ -698,22 +698,20 @@ Plugin.prototype = {
     var val = this.element.value,
       cleanBefore = this._getClean(val),
       originalLeftChars,
-      // raw DOM element
-      input = this.telInput[0],
       digitsOnRight = 0;
 
     if (this.isGoodBrowser) {
       // cursor strategy: maintain the number of digits on the right. we use the right instead of the left so that A) we dont have to account for the new digit (or multiple digits if paste event), and B) we're always on the right side of formatting suffixes
-      digitsOnRight = this._getDigitsOnRight(val, input.selectionEnd);
+      digitsOnRight = this._getDigitsOnRight(val, this.element.selectionEnd);
 
       // if handling a new number character: insert it in the right place
       if (newNumericChar) {
         // replace any selection they may have made with the new char
-        val = val.substr(0, input.selectionStart) + newNumericChar + val.substring(input.selectionEnd, val.length);
+        val = val.substr(0, this.element.selectionStart) + newNumericChar + val.substring(this.element.selectionEnd, val.length);
       } else {
         // here we're not handling a new char, we're just doing a re-format (e.g. on delete/backspace/paste, after the fact), but we still need to maintain the cursor position. so make note of the char on the left, and then after the re-format, we'll count in the same number of digits from the right, and then keep going through any formatting chars until we hit the same left char that we had before.
         // UPDATE: now have to store 2 chars as extensions formatting contains 2 spaces so you need to be able to distinguish
-        originalLeftChars = val.substr(input.selectionStart - 2, 2);
+        originalLeftChars = val.substr(this.element.selectionStart - 2, 2);
       }
     } else if (newNumericChar) {
       val += newNumericChar;
@@ -740,7 +738,7 @@ Plugin.prototype = {
         }
       }
       // set the new cursor
-      input.setSelectionRange(newCursor, newCursor);
+      this.element.setSelectionRange(newCursor, newCursor);
     }
   },
 
@@ -815,19 +813,18 @@ Plugin.prototype = {
             // if autoFormat is enabled, this key event will have already have been handled by another keypress listener (hence we need to add the "+"). if disabled, it will be handled after this by a keyup listener (hence no need to add the "+").
             var newVal = (that.options.autoFormat && window.intlTelInputUtils) ? "+" : "";
 
-            // FIXME: tests pass when this line is commented out -_-
+            // FIXME: tests still pass when this line is commented out -_-
             that.element.value = newVal;
           }
         });
 
         // after tabbing in, make sure the cursor is at the end we must use setTimeout to get outside of the focus handler as it seems the selection happens after that
         setTimeout(function() {
-          var input = that.telInput[0];
 
-          // FIXME: tests pass when this statement is commented out -_-
+          // FIXME: tests still pass when this statement is commented out -_-
           if (that.isGoodBrowser) {
-            var len = input.value.length;
-            input.setSelectionRange(len, len);
+            var len = that.element.value.length;
+            that.element.setSelectionRange(len, len);
           }
         });
       }
@@ -1199,7 +1196,7 @@ Plugin.prototype = {
     // fix for FF and IE11 (with nationalMode=false i.e. auto inserting dial code), who try to put the cursor at the beginning the first time
     if (this.isGoodBrowser) {
       var len = this.element.value.length;
-      this.telInput[0].setSelectionRange(len, len);
+      this.element.setSelectionRange(len, len);
     }
   },
 
@@ -1223,14 +1220,14 @@ Plugin.prototype = {
 
   // check if an element is visible within it's container, else scroll until it is
   _scrollTo: function(element, middle) {
-    var container = this.countryList,
-      containerHeight = container[0].clientHeight,
-      containerTop = container[0].getBoundingClientRect().top,
+    var container = this.countryList[0],
+      containerHeight = container.clientHeight,
+      containerTop = container.getBoundingClientRect().top,
       containerBottom = containerTop + containerHeight,
       elementHeight = element[0].offsetHeight,
       elementTop = element[0].getBoundingClientRect().top,
       elementBottom = elementTop + elementHeight,
-      newScrollTop = elementTop - containerTop + container.scrollTop(),
+      newScrollTop = elementTop - containerTop + container.scrollTop,
       middleOffset = (containerHeight / 2) - (elementHeight / 2);
 
     if (elementTop < containerTop) {
@@ -1238,14 +1235,14 @@ Plugin.prototype = {
       if (middle) {
         newScrollTop -= middleOffset;
       }
-      container.scrollTop(newScrollTop);
+      container.scrollTop = newScrollTop;
     } else if (elementBottom > containerBottom) {
       // scroll down
       if (middle) {
         newScrollTop += middleOffset;
       }
       var heightDifference = containerHeight - elementHeight;
-      container.scrollTop(newScrollTop - heightDifference);
+      container.scrollTop = newScrollTop - heightDifference;
     }
   },
 
