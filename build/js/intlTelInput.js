@@ -561,7 +561,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (val.charAt(0) != "+") {
                     // newCursorPos is current pos + 1 to account for the plus we are about to add
                     var newCursorPos = this.isGoodBrowser ? input.selectionStart + 1 : 0;
-                    this.telInput.val("+" + val);
+                    // FIXME: tests pass when this line is commented out -_-
+                    this.element.value = "+" + val;
                     if (this.isGoodBrowser) {
                         input.setSelectionRange(newCursorPos, newCursorPos);
                     }
@@ -667,7 +668,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this.telInput.on("focus" + this.ns, function(e) {
                 var value = that.telInput.val();
                 // save this to compare on blur
-                that.telInput.data("focusVal", value);
+                // FIXME: tests pass when this line is commented out -_-
+                that.element.setAttribute("data-focus-val", value);
                 // on focus: if empty, insert the dial code for the currently selected flag
                 if (that.options.autoHideDialCode && !value && !that.element.readonly && that.selectedCountryData.dialCode) {
                     that._updateVal("+" + that.selectedCountryData.dialCode, null, true);
@@ -676,14 +678,16 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         if (e.which == keys.PLUS) {
                             // if autoFormat is enabled, this key event will have already have been handled by another keypress listener (hence we need to add the "+"). if disabled, it will be handled after this by a keyup listener (hence no need to add the "+").
                             var newVal = that.options.autoFormat && window.intlTelInputUtils ? "+" : "";
-                            that.telInput.val(newVal);
+                            // FIXME: tests pass when this line is commented out -_-
+                            that.element.value = newVal;
                         }
                     });
                     // after tabbing in, make sure the cursor is at the end we must use setTimeout to get outside of the focus handler as it seems the selection happens after that
                     setTimeout(function() {
                         var input = that.telInput[0];
+                        // FIXME: tests pass when this statement is commented out -_-
                         if (that.isGoodBrowser) {
-                            var len = that.telInput.val().length;
+                            var len = input.value.length;
                             input.setSelectionRange(len, len);
                         }
                     });
@@ -704,7 +708,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     that.telInput.off("keypress.plus" + that.ns);
                 }
                 // if autoFormat, we must manually trigger change event if value has changed
-                if (that.options.autoFormat && window.intlTelInputUtils && that.telInput.val() != that.telInput.data("focusVal")) {
+                // FIXME: tests pass when this statement is commented out -_-
+                if (that.options.autoFormat && window.intlTelInputUtils && that.element.value != that.element.getAttribute("data-focus-val")) {
                     that.telInput.trigger("change");
                 }
             });
@@ -721,14 +726,14 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _showDropdown: function() {
             this._setDropdownPosition();
             // update highlighting and scroll to active list item
-            var activeListItem = $(this.countryList[0].querySelector(".active"));
-            if (activeListItem.length) {
-                this._highlightListItem(activeListItem);
+            var activeListItem = this.countryList[0].querySelector(".active");
+            if (activeListItem) {
+                this._highlightListItem($(activeListItem));
             }
             // show it
             removeClass(this.countryList[0], "hide");
-            if (activeListItem.length) {
-                this._scrollTo(activeListItem);
+            if (activeListItem) {
+                this._scrollTo($(activeListItem));
             }
             // bind all the dropdown-related listeners: mouseover, click, click-off, keydown
             this._bindDropdownListeners();
@@ -824,10 +829,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _searchForCountry: function(query) {
             for (var i = 0; i < this.countries.length; i++) {
                 if (this._startsWith(this.countries[i].name, query)) {
-                    var listItem = this.countryList.children("[data-country-code=" + this.countries[i].iso2 + "]").not(".preferred");
+                    var listItem;
+                    listItem = this.countryList[0].querySelector("[data-country-code=" + this.countries[i].iso2 + "]:not(.preferred)");
                     // update highlighting and scroll
-                    this._highlightListItem(listItem);
-                    this._scrollTo(listItem, true);
+                    this._highlightListItem($(listItem));
+                    this._scrollTo($(listItem), true);
                     break;
                 }
             }
@@ -942,7 +948,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // and the input's placeholder
             this._updatePlaceholder();
             if (this.isMobile) {
-                this.countryList.val(countryCode);
+                // FIXME: tests still pass when this line is commented out
+                this.countryList[0].value = countryCode;
             } else {
                 // update the active list item
                 this.countryListItems.removeClass("active");
@@ -1092,8 +1099,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this.telInput.closest("label").off(this.ns);
             }
             // remove markup
-            var container = this.telInput.parent();
-            container.before(this.telInput).remove();
+            var container = this.element.parentNode;
+            $(container).before(this.telInput).remove();
         },
         // extract the phone number extension if present
         getExtension: function() {
