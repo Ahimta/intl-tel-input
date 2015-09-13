@@ -1130,7 +1130,14 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             }
             // remove markup
             var container = this.element.parentNode;
-            $(container).before($(this.element)).remove();
+            if (container.parentNode) {
+                container.parentNode.insertBefore(this.element, container);
+                container.parentNode.removeChild(container);
+            } else {
+                // Surprisingly, jQuery does something similar, but more complicated
+                var fakeWrapper = document.createElement("div");
+                fakeWrapper.appendChild(this.element);
+            }
         },
         // extract the phone number extension if present
         getExtension: function() {
