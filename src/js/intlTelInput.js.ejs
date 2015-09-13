@@ -456,6 +456,7 @@ Plugin.prototype = {
   // initialise the main event listeners: input keyup, and click selected flag
   _initListeners: function() {
     var that = this;
+    this._eventListeners = {};
 
     this._initKeyListeners();
 
@@ -465,12 +466,14 @@ Plugin.prototype = {
     }
 
     if (this.isMobile) {
-      $(this.countryList).on("change" + this.ns, function(e) {
+      this._eventListeners.onMobileCountryListChange = function(e) {
 
         var selectedItem = this.querySelector("option:checked");
 
         if (selectedItem) { that._selectListItem(selectedItem); }
-      });
+      };
+
+      this.countryList.addEventListener("change", this._eventListeners.onMobileCountryListChange);
     } else {
       // hack for input nested inside label: clicking the selected-flag to open the dropdown would then automatically trigger a 2nd click on the input which would close it again
       var label = getClosestLabel(this.element);
@@ -934,8 +937,15 @@ Plugin.prototype = {
 
     // when mouse over a list item, just highlight that one
     // we add the class "highlight", so if they hit "enter" we know which one to select
-    $(this.countryList).on("mouseover" + this.ns, ".country", function(e) {
+    this._eventListeners.onListItemMouseover = function(e) {
+
       that._highlightListItem(this);
+    };
+
+    // FIXME: tests still pass when this statement is commented out -_-
+    forEach(this.countryListItems, function(element) {
+
+      element.addEventListener("mouseover", that._eventListeners.onListItemMouseover);
     });
 
     // listen for country selection
@@ -1232,6 +1242,8 @@ Plugin.prototype = {
 
   // close the dropdown and unbind any listeners
   _closeDropdown: function() {
+    var onListItemMouseover = this._eventListeners.onListItemMouseover;
+
     addClass(this.countryList, "hide");
 
     // update the arrow
@@ -1244,6 +1256,11 @@ Plugin.prototype = {
     $("html").off(this.ns);
     // unbind hover and click listeners
     $(this.countryList).off(this.ns);
+
+    forEach(this.countryListItems, function(element) {
+
+      element.removeEventListener("mouseover", onListItemMouseover);
+    });
   },
 
 
@@ -1362,13 +1379,15 @@ Plugin.prototype = {
 
     if (this.isMobile) {
       // change event on select country
-      $(this.countryList).off(this.ns);
+      this.countryList.removeEventListener("change", this._eventListeners.onMobileCountryListChange);
     } else {
       // click event to open dropdown
       $(this.selectedFlagInner.parentNode).off(this.ns);
       // label click hack
       var label = getClosestLabel(this.element);
       if (label) { $(label).off(this.ns); }
+
+
     }
 
     // remove markup

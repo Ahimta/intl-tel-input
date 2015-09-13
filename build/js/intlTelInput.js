@@ -395,18 +395,20 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         // initialise the main event listeners: input keyup, and click selected flag
         _initListeners: function() {
             var that = this;
+            this._eventListeners = {};
             this._initKeyListeners();
             // autoFormat prevents the change event from firing, so we need to check for changes between focus and blur in order to manually trigger it
             if (this.options.autoHideDialCode || this.options.autoFormat) {
                 this._initFocusListeners();
             }
             if (this.isMobile) {
-                $(this.countryList).on("change" + this.ns, function(e) {
+                this._eventListeners.onMobileCountryListChange = function(e) {
                     var selectedItem = this.querySelector("option:checked");
                     if (selectedItem) {
                         that._selectListItem(selectedItem);
                     }
-                });
+                };
+                this.countryList.addEventListener("change", this._eventListeners.onMobileCountryListChange);
             } else {
                 // hack for input nested inside label: clicking the selected-flag to open the dropdown would then automatically trigger a 2nd click on the input which would close it again
                 var label = getClosestLabel(this.element);
@@ -776,8 +778,12 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             var that = this;
             // when mouse over a list item, just highlight that one
             // we add the class "highlight", so if they hit "enter" we know which one to select
-            $(this.countryList).on("mouseover" + this.ns, ".country", function(e) {
+            this._eventListeners.onListItemMouseover = function(e) {
                 that._highlightListItem(this);
+            };
+            // FIXME: tests still pass when this statement is commented out -_-
+            forEach(this.countryListItems, function(element) {
+                element.addEventListener("mouseover", that._eventListeners.onListItemMouseover);
             });
             // listen for country selection
             $(this.countryList).on("click" + this.ns, ".country", function(e) {
@@ -1016,6 +1022,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // close the dropdown and unbind any listeners
         _closeDropdown: function() {
+            var onListItemMouseover = this._eventListeners.onListItemMouseover;
             addClass(this.countryList, "hide");
             // update the arrow
             // FIXED: arrow is a child of selectedFlag no selectedFlagInner
@@ -1026,6 +1033,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             $("html").off(this.ns);
             // unbind hover and click listeners
             $(this.countryList).off(this.ns);
+            forEach(this.countryListItems, function(element) {
+                element.removeEventListener("mouseover", onListItemMouseover);
+            });
         },
         // check if an element is visible within it's container, else scroll until it is
         _scrollTo: function(element, middle) {
@@ -1118,7 +1128,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             $(this.element).off(this.ns);
             if (this.isMobile) {
                 // change event on select country
-                $(this.countryList).off(this.ns);
+                this.countryList.removeEventListener("change", this._eventListeners.onMobileCountryListChange);
             } else {
                 // click event to open dropdown
                 $(this.selectedFlagInner.parentNode).off(this.ns);
