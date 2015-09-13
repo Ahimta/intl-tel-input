@@ -275,8 +275,6 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // generate all of the markup for the plugin: the selected flag overlay, and the dropdown
         _generateMarkup: function() {
-            // telephone input
-            this.telInput = $(this.element);
             // prevent autocomplete as there's no safe, cross-browser event we can react to, so it can easily put the plugin in an inconsistent state e.g. the wrong flag selected for the autocompleted number, which on submit could mean the wrong number is saved (esp in nationalMode)
             this.element.setAttribute("autocomplete", "off");
             // Create nodes; mostly order independent and loosely coupled
@@ -293,8 +291,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             var arrow = document.createElement("div");
             arrow.className = "arrow";
             // Assign instance vars to JQuery instances to retain the same behavior
-            this.selectedFlagInner = $(selectedFlagInner);
-            this.flagsContainer = $(flagsContainer);
+            this.selectedFlagInner = selectedFlagInner;
+            this.flagsContainer = flagsContainer;
             // Do DOM manipulation last since manipulations are order-dependent and tightly coupled
             // This check is necessary since this element may have been created without a parent using Javascript
             if (this.element.parentNode) {
@@ -313,12 +311,12 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 var mobileCountryList = document.createElement("select");
                 mobileCountryList.className = "iti-mobile-select";
                 flagsContainer.appendChild(mobileCountryList);
-                this.countryList = $(mobileCountryList);
+                this.countryList = mobileCountryList;
             } else {
                 var desktopCountryList = document.createElement("ul");
                 desktopCountryList.className = "country-list v-hide";
                 flagsContainer.appendChild(desktopCountryList);
-                this.countryList = $(desktopCountryList);
+                this.countryList = desktopCountryList;
                 if (this.preferredCountries.length && !this.isMobile) {
                     this._appendListItems(this.preferredCountries, "preferred");
                     var divider = document.createElement("li");
@@ -330,10 +328,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             if (!this.isMobile) {
                 // now we can grab the dropdown height, and hide it properly
                 this.dropdownHeight = this.countryList.offsetHeight;
-                removeClass(this.countryList[0], "v-hide");
-                addClass(this.countryList[0], "hide");
+                removeClass(this.countryList, "v-hide");
+                addClass(this.countryList, "hide");
                 // this is useful in lots of places
-                this.countryListItems = $(this.countryList[0].querySelectorAll(".country"));
+                this.countryListItems = this.countryList.querySelectorAll(".country");
             }
         },
         // add a country <li> to the countryList <ul> container
@@ -361,7 +359,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     tmp += "</li>";
                 }
             }
-            this.countryList[0].innerHTML += tmp;
+            this.countryList.innerHTML += tmp;
         },
         // set the initial state of the input value and the selected flag
         _setInitialState: function() {
@@ -397,7 +395,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this._initFocusListeners();
             }
             if (this.isMobile) {
-                this.countryList.on("change" + this.ns, function(e) {
+                $(this.countryList).on("change" + this.ns, function(e) {
                     that._selectListItem($(this.querySelector("option:checked")));
                 });
             } else {
@@ -406,7 +404,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (label) {
                     $(label).on("click" + this.ns, function(e) {
                         // if the dropdown is closed, then focus the input, else ignore the click
-                        if (hasClass(that.countryList[0], "hide")) {
+                        if (hasClass(that.countryList, "hide")) {
                             that.element.focus();
                         } else {
                             e.preventDefault();
@@ -414,19 +412,19 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     });
                 }
                 // toggle country dropdown on click
-                var selectedFlag = this.selectedFlagInner[0].parentNode;
+                var selectedFlag = this.selectedFlagInner.parentNode;
                 $(selectedFlag).on("click" + this.ns, function(e) {
                     // only intercept this event if we're opening the dropdown
                     // else let it bubble up to the top ("click-off-to-close" listener)
                     // we cannot just stopPropagation as it may be needed to close another instance
-                    if (hasClass(that.countryList[0], "hide") && !that.element.disabled && !that.element.readonly) {
+                    if (hasClass(that.countryList, "hide") && !that.element.disabled && !that.element.readonly) {
                         that._showDropdown();
                     }
                 });
             }
             // open dropdown list if currently focused
-            this.flagsContainer.on("keydown" + that.ns, function(e) {
-                var isDropdownHidden = hasClass(that.countryList[0], "hide");
+            $(this.flagsContainer).on("keydown" + that.ns, function(e) {
+                var isDropdownHidden = hasClass(that.countryList, "hide");
                 if (isDropdownHidden && (e.which == keys.UP || e.which == keys.DOWN || e.which == keys.SPACE || e.which == keys.ENTER)) {
                     // prevent form from being submitted if "ENTER" was pressed
                     e.preventDefault();
@@ -501,7 +499,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // use keypress event as we want to ignore all input except for a select few keys,
                 // but we dont want to ignore the navigation keys like the arrows etc.
                 // NOTE: no point in refactoring this to only bind these listeners on focus/blur because then you would need to have those 2 listeners running the whole time anyway...
-                this.telInput.on("keypress" + this.ns, function(e) {
+                $(this.element).on("keypress" + this.ns, function(e) {
                     // 32 is space, and after that it's all chars (not meta/nav keys)
                     // this fix is needed for Firefox, which triggers keypress event for some meta/nav keys
                     // Update: also ignore if this is a metaKey e.g. FF and Safari trigger keypress on the v of Ctrl+v
@@ -511,7 +509,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         e.preventDefault();
                         // allowed keys are just numeric keys and plus
                         // we must allow plus for the case where the user does select-all and then hits plus to start typing a new number. we could refine this logic to first check that the selection contains a plus, but that wont work in old browsers, and I think it's overkill anyway
-                        var isAllowedKey = e.which >= keys.ZERO && e.which <= keys.NINE || e.which == keys.PLUS, input = that.telInput[0], noSelection = that.isGoodBrowser && input.selectionStart == input.selectionEnd, max = that.element.getAttribute("maxlength"), val = that.element.value, // assumes that if max exists, it is >0
+                        var isAllowedKey = e.which >= keys.ZERO && e.which <= keys.NINE || e.which == keys.PLUS, input = that.element, noSelection = that.isGoodBrowser && input.selectionStart == input.selectionEnd, max = that.element.getAttribute("maxlength"), val = that.element.value, // assumes that if max exists, it is >0
                         isBelowMax = max ? val.length < max : true;
                         // first: ensure we dont go over maxlength. we must do this here to prevent adding digits in the middle of the number
                         // still reformat even if not an allowed key as they could by typing a formatting char, but ignore if there's a selection as doesn't make sense to replace selection with illegal char and then immediately remove it
@@ -520,7 +518,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                             that._handleInputKey(newChar, true, isAllowedKey);
                             // if something has changed, trigger the input event (which was otherwised squashed by the preventDefault)
                             if (val != that.element.value) {
-                                that.telInput.trigger("input");
+                                $(that.element).trigger("input");
                             }
                         }
                         if (!isAllowedKey) {
@@ -530,7 +528,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 });
             }
             // handle cut/paste event (now supported in all major browsers)
-            this.telInput.on("cut" + this.ns + " paste" + this.ns, function() {
+            $(this.element).on("cut" + this.ns + " paste" + this.ns, function() {
                 // hack because "paste" event is fired before input is updated
                 setTimeout(function() {
                     if (that.options.autoFormat && window.intlTelInputUtils) {
@@ -547,7 +545,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // handle keyup event
             // if autoFormat enabled: we use keyup to catch delete events (after the fact)
             // if no autoFormat, this is used to update the flag
-            this.telInput.on("keyup" + this.ns, function(e) {
+            $(this.element).on("keyup" + this.ns, function(e) {
                 // the "enter" key event from selecting a dropdown item is triggered here on the input, because the document.keydown handler that initially handles that event triggers a focus on the input, and so the keyup for that same key event gets triggered here. weird, but just make sure we dont bother doing any re-formatting in this case (we've already done preventDefault in the keydown handler, so it wont actually submit the form or anything).
                 // ALSO: ignore keyup if readonly
                 if (e.which == keys.ENTER || that.element.readonly) {} else if (that.options.autoFormat && window.intlTelInputUtils) {
@@ -587,7 +585,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         // alert the user to an invalid key event
         _handleInvalidKey: function() {
             var that = this;
-            this.telInput.trigger("invalidkey");
+            $(this.element).trigger("invalidkey");
             addClass(this.element, "iti-invalid-key");
             setTimeout(function() {
                 removeClass(that.element, "iti-invalid-key");
@@ -671,7 +669,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             var that = this;
             if (this.options.autoHideDialCode) {
                 // mousedown decides where the cursor goes, so if we're focusing we must preventDefault as we'll be inserting the dial code, and we want the cursor to be at the end no matter where they click
-                this.telInput.on("mousedown" + this.ns, function(e) {
+                $(this.element).on("mousedown" + this.ns, function(e) {
                     // FIXME: tests still pass when this statement is commented out -_-
                     if (that.element.parentNode.querySelector(":focus") != that.element && !that.element.value) {
                         e.preventDefault();
@@ -680,7 +678,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     }
                 });
             }
-            this.telInput.on("focus" + this.ns, function(e) {
+            $(this.element).on("focus" + this.ns, function(e) {
                 var value = that.element.value;
                 // save this to compare on blur
                 // FIXME: tests pass when this line is commented out -_-
@@ -689,7 +687,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (that.options.autoHideDialCode && !value && !that.element.readonly && that.selectedCountryData.dialCode) {
                     that._updateVal("+" + that.selectedCountryData.dialCode, null, true);
                     // after auto-inserting a dial code, if the first key they hit is '+' then assume they are entering a new number, so remove the dial code. use keypress instead of keydown because keydown gets triggered for the shift key (required to hit the + key), and instead of keyup because that shows the new '+' before removing the old one
-                    that.telInput.one("keypress.plus" + that.ns, function(e) {
+                    $(that.element).one("keypress.plus" + that.ns, function(e) {
                         if (e.which == keys.PLUS) {
                             // if autoFormat is enabled, this key event will have already have been handled by another keypress listener (hence we need to add the "+"). if disabled, it will be handled after this by a keyup listener (hence no need to add the "+").
                             var newVal = that.options.autoFormat && window.intlTelInputUtils ? "+" : "";
@@ -707,7 +705,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     });
                 }
             });
-            this.telInput.on("blur" + this.ns, function() {
+            $(this.element).on("blur" + this.ns, function() {
                 if (that.options.autoHideDialCode) {
                     // on blur: if just a dial code then remove it
                     var value = that.element.value, startsPlus = value.charAt(0) == "+";
@@ -719,12 +717,12 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         }
                     }
                     // remove the keypress listener we added on focus
-                    that.telInput.off("keypress.plus" + that.ns);
+                    $(that.element).off("keypress.plus" + that.ns);
                 }
                 // if autoFormat, we must manually trigger change event if value has changed
                 // FIXME: tests pass when this statement is commented out -_-
                 if (that.options.autoFormat && window.intlTelInputUtils && that.element.value != that.element.getAttribute("data-focus-val")) {
-                    that.telInput.trigger("change");
+                    $(that.element).trigger("change");
                 }
             });
         },
@@ -740,12 +738,12 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _showDropdown: function() {
             this._setDropdownPosition();
             // update highlighting and scroll to active list item
-            var activeListItem = this.countryList[0].querySelector(".active");
+            var activeListItem = this.countryList.querySelector(".active");
             if (activeListItem) {
                 this._highlightListItem($(activeListItem));
             }
             // show it
-            removeClass(this.countryList[0], "hide");
+            removeClass(this.countryList, "hide");
             if (activeListItem) {
                 this._scrollTo($(activeListItem));
             }
@@ -753,7 +751,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this._bindDropdownListeners();
             // update the arrow
             // FIXED: arrow is a child of selectedFlag not selectedFlagInner
-            addClass(this.selectedFlagInner[0].parentNode.querySelector(".arrow"), "up");
+            addClass(this.selectedFlagInner.parentNode.querySelector(".arrow"), "up");
         },
         // decide where to position dropdown (depends on position within viewport, and scroll)
         _setDropdownPosition: function() {
@@ -762,18 +760,18 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // dropdownHeight - 1 for border
             // FIXME: cssTop sometimes has two leading negative signs (e.g: --1px)
             var cssTop = !dropdownFitsBelow && dropdownFitsAbove ? "-" + (this.dropdownHeight - 1) + "px" : "";
-            this.countryList[0].style.top = cssTop;
+            this.countryList.style.top = cssTop;
         },
         // we only bind dropdown listeners when the dropdown is open
         _bindDropdownListeners: function() {
             var that = this;
             // when mouse over a list item, just highlight that one
             // we add the class "highlight", so if they hit "enter" we know which one to select
-            this.countryList.on("mouseover" + this.ns, ".country", function(e) {
+            $(this.countryList).on("mouseover" + this.ns, ".country", function(e) {
                 that._highlightListItem($(this));
             });
             // listen for country selection
-            this.countryList.on("click" + this.ns, ".country", function(e) {
+            $(this.countryList).on("click" + this.ns, ".country", function(e) {
                 that._selectListItem($(this));
             });
             // click off to close
@@ -821,7 +819,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // highlight the next/prev item in the list (and ensure it is visible)
         _handleUpDownKey: function(key) {
-            var current = this.countryList[0].querySelector(".highlight");
+            var current = this.countryList.querySelector(".highlight");
             var next = key == keys.UP ? current.previousSibling : current.nextSibling;
             if (next) {
                 // skip the divider
@@ -834,7 +832,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // select the currently highlighted item
         _handleEnterKey: function() {
-            var currentCountry = this.countryList[0].querySelector(".highlight");
+            var currentCountry = this.countryList.querySelector(".highlight");
             if (currentCountry) {
                 this._selectListItem($(currentCountry));
             }
@@ -844,7 +842,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             for (var i = 0; i < this.countries.length; i++) {
                 if (this._startsWith(this.countries[i].name, query)) {
                     var listItem;
-                    listItem = this.countryList[0].querySelector("[data-country-code=" + this.countries[i].iso2 + "]:not(.preferred)");
+                    listItem = this.countryList.querySelector("[data-country-code=" + this.countries[i].iso2 + "]:not(.preferred)");
                     // update highlighting and scroll
                     this._highlightListItem($(listItem));
                     this._scrollTo($(listItem), true);
@@ -957,22 +955,22 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     iso2: this.selectedCountryData.iso2
                 };
             }
-            this.selectedFlagInner[0].className = "iti-flag " + countryCode;
+            this.selectedFlagInner.className = "iti-flag " + countryCode;
             // update the selected country's title attribute
             var title = countryCode ? this.selectedCountryData.name + ": +" + this.selectedCountryData.dialCode : "Unknown";
-            this.selectedFlagInner[0].parentNode.setAttribute("title", title);
+            this.selectedFlagInner.parentNode.setAttribute("title", title);
             // and the input's placeholder
             this._updatePlaceholder();
             if (this.isMobile) {
                 // FIXME: tests still pass when this line is commented out
-                this.countryList[0].value = countryCode;
+                this.countryList.value = countryCode;
             } else {
                 // update the active list item
                 forEach(this.countryListItems, function(element) {
                     removeClass(element, "active");
                 });
                 if (countryCode) {
-                    addClass(this.countryList[0].querySelector("[data-country-code=" + countryCode + "]"), "active");
+                    addClass(this.countryList.querySelector("[data-country-code=" + countryCode + "]"), "active");
                 }
             }
         },
@@ -996,7 +994,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             }
             this._updateDialCode(listItem[0].getAttribute("data-dial-code"), true);
             // always fire the change event as even if nationalMode=true (and we haven't updated the input val), the system as a whole has still changed - see country-sync example. think of it as making a selection from a select element.
-            this.telInput.trigger("change");
+            $(this.element).trigger("change");
             // focus the input
             this.element.focus();
             // fix for FF and IE11 (with nationalMode=false i.e. auto inserting dial code), who try to put the cursor at the beginning the first time
@@ -1007,20 +1005,20 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // close the dropdown and unbind any listeners
         _closeDropdown: function() {
-            addClass(this.countryList[0], "hide");
+            addClass(this.countryList, "hide");
             // update the arrow
             // FIXED: arrow is a child of selectedFlag no selectedFlagInner
-            removeClass(this.selectedFlagInner[0].parentNode.querySelector(".arrow"), "up");
+            removeClass(this.selectedFlagInner.parentNode.querySelector(".arrow"), "up");
             // unbind key events
             $(document).off(this.ns);
             // unbind click-off-to-close
             $("html").off(this.ns);
             // unbind hover and click listeners
-            this.countryList.off(this.ns);
+            $(this.countryList).off(this.ns);
         },
         // check if an element is visible within it's container, else scroll until it is
         _scrollTo: function(element, middle) {
-            var container = this.countryList[0], containerHeight = container.clientHeight, containerTop = container.getBoundingClientRect().top, containerBottom = containerTop + containerHeight, elementHeight = element[0].offsetHeight, elementTop = element[0].getBoundingClientRect().top, elementBottom = elementTop + elementHeight, newScrollTop = elementTop - containerTop + container.scrollTop, middleOffset = containerHeight / 2 - elementHeight / 2;
+            var container = this.countryList, containerHeight = container.clientHeight, containerTop = container.getBoundingClientRect().top, containerBottom = containerTop + containerHeight, elementHeight = element[0].offsetHeight, elementTop = element[0].getBoundingClientRect().top, elementBottom = elementTop + elementHeight, newScrollTop = elementTop - containerTop + container.scrollTop, middleOffset = containerHeight / 2 - elementHeight / 2;
             if (elementTop < containerTop) {
                 // scroll up
                 if (middle) {
@@ -1106,10 +1104,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this._closeDropdown();
             }
             // key events, and focus/blur events if autoHideDialCode=true
-            this.telInput.off(this.ns);
+            $(this.element).off(this.ns);
             if (this.isMobile) {
                 // change event on select country
-                this.countryList.off(this.ns);
+                $(this.countryList).off(this.ns);
             } else {
                 // click event to open dropdown
                 $(this.selectedFlagInner.parentNode).off(this.ns);
@@ -1121,7 +1119,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             }
             // remove markup
             var container = this.element.parentNode;
-            $(container).before(this.telInput).remove();
+            $(container).before($(this.element)).remove();
         },
         // extract the phone number extension if present
         getExtension: function() {
@@ -1189,7 +1187,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         selectCountry: function(countryCode) {
             countryCode = countryCode.toLowerCase();
             // check if already selected
-            if (!hasClass(this.selectedFlagInner[0], countryCode)) {
+            if (!hasClass(this.selectedFlagInner, countryCode)) {
                 this._selectFlag(countryCode, true);
                 this._updateDialCode(this.selectedCountryData.dialCode, false);
             }
