@@ -138,6 +138,15 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             fn(elements[i]);
         }
     }
+    function getClosestLabel(element) {
+        if (element.tagName === "label") {
+            return element;
+        } else if (element.parentNode) {
+            return getClosestLabel(element.parentNode);
+        } else {
+            return null;
+        }
+    }
     var storage = {
         get: function(key) {
             if (window.localStorage) {
@@ -393,9 +402,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 });
             } else {
                 // hack for input nested inside label: clicking the selected-flag to open the dropdown would then automatically trigger a 2nd click on the input which would close it again
-                var label = this.telInput.closest("label");
-                if (label.length) {
-                    label.on("click" + this.ns, function(e) {
+                var label = getClosestLabel(this.element);
+                if (label) {
+                    $(label).on("click" + this.ns, function(e) {
                         // if the dropdown is closed, then focus the input, else ignore the click
                         if (hasClass(that.countryList[0], "hide")) {
                             that.element.focus();
@@ -1105,7 +1114,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // click event to open dropdown
                 $(this.selectedFlagInner.parentNode).off(this.ns);
                 // label click hack
-                this.telInput.closest("label").off(this.ns);
+                var label = getClosestLabel(this.element);
+                if (label) {
+                    $(label).off(this.ns);
+                }
             }
             // remove markup
             var container = this.element.parentNode;
