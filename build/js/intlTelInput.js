@@ -680,7 +680,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // mousedown decides where the cursor goes, so if we're focusing we must preventDefault as we'll be inserting the dial code, and we want the cursor to be at the end no matter where they click
                 $(this.element).on("mousedown" + this.ns, function(e) {
                     // FIXME: tests still pass when this statement is commented out -_-
-                    if (that.element.parentNode.querySelector(":focus") != that.element && !that.element.value) {
+                    if (that.element.parentNode.querySelector(":focus") !== that.element && !that.element.value) {
                         e.preventDefault();
                         // but this also cancels the focus, so we must trigger that manually
                         that.element.focus();
