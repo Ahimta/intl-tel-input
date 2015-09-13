@@ -85,18 +85,24 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             return "";
         }
     }
-    function hasClass(htmlElement, className) {
-        return (htmlElement.className + " ").indexOf(className + " ") >= 0;
+    function hasClass(element, className) {
+        return (element.className + " ").indexOf(className + " ") >= 0;
     }
-    function removeClass(htmlElement, className) {
-        var elementClassName = htmlElement.className + " ";
-        htmlElement.className = trim(elementClassName.replace(className + " ", ""));
+    function removeClass(element, className) {
+        if (element.classList) {
+            element.classList.remove(className);
+        } else {
+            var elementClassName = element.className + " ";
+            element.className = trim(elementClassName.replace(className + " ", ""));
+        }
     }
-    function addClass(htmlElement, className) {
-        if (!htmlElement.className) {
-            htmlElement.className = className;
-        } else if (!hasClass(htmlElement, className)) {
-            htmlElement.className += " " + className;
+    function addClass(element, className) {
+        if (element.classList) {
+            element.classList.add(className);
+        } else if (!element.className) {
+            element.className = className;
+        } else if (!hasClass(element, className)) {
+            element.className += " " + className;
         }
     }
     function whichKey(e) {
@@ -396,7 +402,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             }
             if (this.isMobile) {
                 $(this.countryList).on("change" + this.ns, function(e) {
-                    that._selectListItem($(this.querySelector("option:checked")));
+                    var selectedItem = this.querySelector("option:checked");
+                    if (selectedItem) {
+                        that._selectListItem(selectedItem);
+                    }
                 });
             } else {
                 // hack for input nested inside label: clicking the selected-flag to open the dropdown would then automatically trigger a 2nd click on the input which would close it again
@@ -740,12 +749,12 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // update highlighting and scroll to active list item
             var activeListItem = this.countryList.querySelector(".active");
             if (activeListItem) {
-                this._highlightListItem($(activeListItem));
+                this._highlightListItem(activeListItem);
             }
             // show it
             removeClass(this.countryList, "hide");
             if (activeListItem) {
-                this._scrollTo($(activeListItem));
+                this._scrollTo(activeListItem);
             }
             // bind all the dropdown-related listeners: mouseover, click, click-off, keydown
             this._bindDropdownListeners();
@@ -768,11 +777,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // when mouse over a list item, just highlight that one
             // we add the class "highlight", so if they hit "enter" we know which one to select
             $(this.countryList).on("mouseover" + this.ns, ".country", function(e) {
-                that._highlightListItem($(this));
+                that._highlightListItem(this);
             });
             // listen for country selection
             $(this.countryList).on("click" + this.ns, ".country", function(e) {
-                that._selectListItem($(this));
+                that._selectListItem(this);
             });
             // click off to close
             // (except when this initial opening click is bubbling up)
@@ -826,26 +835,28 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (hasClass(next, "divider")) {
                     next = key == keys.UP ? next.previousSibling : next.nextSibling;
                 }
-                this._highlightListItem($(next));
-                this._scrollTo($(next));
+                this._highlightListItem(next);
+                this._scrollTo(next);
             }
         },
         // select the currently highlighted item
         _handleEnterKey: function() {
             var currentCountry = this.countryList.querySelector(".highlight");
             if (currentCountry) {
-                this._selectListItem($(currentCountry));
+                this._selectListItem(currentCountry);
             }
         },
         // find the first list item whose name starts with the query string
         _searchForCountry: function(query) {
             for (var i = 0; i < this.countries.length; i++) {
                 if (this._startsWith(this.countries[i].name, query)) {
-                    var listItem;
-                    listItem = this.countryList.querySelector("[data-country-code=" + this.countries[i].iso2 + "]:not(.preferred)");
+                    var selector = "[data-country-code=" + this.countries[i].iso2 + "]:not(.preferred)";
+                    var listItem = this.countryList.querySelector(selector);
                     // update highlighting and scroll
-                    this._highlightListItem($(listItem));
-                    this._scrollTo($(listItem), true);
+                    if (listItem) {
+                        this._highlightListItem(listItem);
+                        this._scrollTo(listItem, true);
+                    }
                     break;
                 }
             }
@@ -927,7 +938,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             forEach(this.countryListItems, function(element) {
                 removeClass(element, "highlight");
             });
-            addClass(listItem[0], "highlight");
+            addClass(listItem, "highlight");
         },
         // find the country data for the given country code
         // the ignoreOnlyCountriesOption is only used during init() while parsing the onlyCountries array
@@ -988,11 +999,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _selectListItem: function(listItem) {
             var countryCodeAttr = this.isMobile ? "value" : "data-country-code";
             // update selected flag and active list item
-            this._selectFlag(listItem[0].getAttribute(countryCodeAttr), true);
+            this._selectFlag(listItem.getAttribute(countryCodeAttr), true);
             if (!this.isMobile) {
                 this._closeDropdown();
             }
-            this._updateDialCode(listItem[0].getAttribute("data-dial-code"), true);
+            this._updateDialCode(listItem.getAttribute("data-dial-code"), true);
             // always fire the change event as even if nationalMode=true (and we haven't updated the input val), the system as a whole has still changed - see country-sync example. think of it as making a selection from a select element.
             $(this.element).trigger("change");
             // focus the input
@@ -1018,7 +1029,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // check if an element is visible within it's container, else scroll until it is
         _scrollTo: function(element, middle) {
-            var container = this.countryList, containerHeight = container.clientHeight, containerTop = container.getBoundingClientRect().top, containerBottom = containerTop + containerHeight, elementHeight = element[0].offsetHeight, elementTop = element[0].getBoundingClientRect().top, elementBottom = elementTop + elementHeight, newScrollTop = elementTop - containerTop + container.scrollTop, middleOffset = containerHeight / 2 - elementHeight / 2;
+            var container = this.countryList, containerHeight = container.clientHeight, containerTop = container.getBoundingClientRect().top, containerBottom = containerTop + containerHeight, elementHeight = element.offsetHeight, elementTop = element.getBoundingClientRect().top, elementBottom = elementTop + elementHeight, newScrollTop = elementTop - containerTop + container.scrollTop, middleOffset = containerHeight / 2 - elementHeight / 2;
             if (elementTop < containerTop) {
                 // scroll up
                 if (middle) {
