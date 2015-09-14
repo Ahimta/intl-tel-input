@@ -75,7 +75,7 @@ var getFlagsContainerElement = function(i) {
 
 var selectFlag = function(countryCode, i) {
   i = i || input;
-  getSelectedFlagContainer(i).click();
+  dispatchEvent(getSelectedFlagContainer(i)[0], "click", true, false);
   getListElement(i).find("li[data-country-code='" + countryCode + "']").click();
 };
 
@@ -117,3 +117,9 @@ var triggerKeyOnBody = function(key) {
 var triggerKeyOnFlagsContainerElement = function(key) {
   getFlagsContainerElement().trigger(getKeyEvent(key, "keydown"));
 };
+
+var dispatchEvent = function(element, name, bubbles, cancellable) {
+  var event = document.createEvent("HTMLEvents");
+  event.initEvent(name, bubbles, cancellable);
+  element.dispatchEvent(event);
+}

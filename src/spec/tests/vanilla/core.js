@@ -209,7 +209,7 @@ describe("vanilla:", function() {
       describe("clicking the selected flag to open the dropdown", function() {
 
         beforeEach(function() {
-          getSelectedFlagContainer().click();
+          dispatchEvent(getSelectedFlagContainer()[0], "click", true, false);;
         });
 
         it("opens the dropdown with the top item marked as active and highlighted", function() {
@@ -219,7 +219,7 @@ describe("vanilla:", function() {
         });
 
         it("clicking it again closes the dropdown", function() {
-          getSelectedFlagContainer().click();
+          dispatchEvent(getSelectedFlagContainer()[0], "click", true, false);;
           expect(getListElement()).toHaveClass("hide");
         });
 
@@ -266,7 +266,7 @@ describe("vanilla:", function() {
         });*/
 
         it("opens the dropdown on click", function() {
-          getSelectedFlagContainer().click();
+          dispatchEvent(getSelectedFlagContainer()[0], "click", true, false);;
           expect(getListElement()).not.toHaveClass("hide");
         });
 
@@ -286,7 +286,7 @@ describe("vanilla:", function() {
         });*/
 
         it("doesn't open the dropdown on click", function() {
-          getSelectedFlagContainer().click();
+          dispatchEvent(getSelectedFlagContainer()[0], "click", true, false);;
           expect(getListElement()).toHaveClass("hide");
         });
 

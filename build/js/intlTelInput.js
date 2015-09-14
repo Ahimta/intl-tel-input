@@ -413,25 +413,27 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // hack for input nested inside label: clicking the selected-flag to open the dropdown would then automatically trigger a 2nd click on the input which would close it again
                 var label = getClosestLabel(this.element);
                 if (label) {
-                    $(label).on("click" + this.ns, function(e) {
+                    this._eventListeners.onLabelClicked = function(e) {
                         // if the dropdown is closed, then focus the input, else ignore the click
                         if (hasClass(that.countryList, "hide")) {
                             that.element.focus();
                         } else {
                             e.preventDefault();
                         }
-                    });
+                    };
+                    label.addEventListener("click", this._eventListeners.onLabelClicked);
                 }
                 // toggle country dropdown on click
                 var selectedFlag = this.selectedFlagInner.parentNode;
-                $(selectedFlag).on("click" + this.ns, function(e) {
+                this._eventListeners.onSelectedFlagClicked = function(e) {
                     // only intercept this event if we're opening the dropdown
                     // else let it bubble up to the top ("click-off-to-close" listener)
                     // we cannot just stopPropagation as it may be needed to close another instance
                     if (hasClass(that.countryList, "hide") && !that.element.disabled && !that.element.readonly) {
                         that._showDropdown();
                     }
-                });
+                };
+                selectedFlag.addEventListener("click", this._eventListeners.onSelectedFlagClicked);
             }
             // open dropdown list if currently focused
             $(this.flagsContainer).on("keydown" + that.ns, function(e) {
@@ -1130,12 +1132,13 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // change event on select country
                 this.countryList.removeEventListener("change", this._eventListeners.onMobileCountryListChange);
             } else {
-                // click event to open dropdown
-                $(this.selectedFlagInner.parentNode).off(this.ns);
                 // label click hack
                 var label = getClosestLabel(this.element);
+                var selectedFlag = this.selectedFlagInner.parentNode;
+                // click event to open dropdown
+                selectedFlag.removeEventListener("click", this.onSelectedFlagClicked);
                 if (label) {
-                    $(label).off(this.ns);
+                    label.removeEventListener("click", this._eventListeners.onLabelClicked);
                 }
             }
             // remove markup
