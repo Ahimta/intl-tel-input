@@ -952,15 +952,16 @@ Plugin.prototype = {
       that._highlightListItem(this);
     };
 
-    // FIXME: tests still pass when this statement is commented out -_-
+    // listen for country selection
+    this._eventListeners.onDesktopCountryItemClicked = function(e) {
+      that._selectListItem(this);
+    };
+
     forEach(this.countryListItems, function(element) {
 
+      // FIXME: tests still pass when this line is commented out -_-
+      element.addEventListener("click", that._eventListeners.onDesktopCountryItemClicked);
       element.addEventListener("mouseover", that._eventListeners.onListItemMouseover);
-    });
-
-    // listen for country selection
-    $(this.countryList).on("click" + this.ns, ".country", function(e) {
-      that._selectListItem(this);
     });
 
     // click off to close
@@ -1252,6 +1253,7 @@ Plugin.prototype = {
 
   // close the dropdown and unbind any listeners
   _closeDropdown: function() {
+    var onDesktopCountryItemClicked = this._eventListeners.onDesktopCountryItemClicked;
     var onListItemMouseover = this._eventListeners.onListItemMouseover;
 
     addClass(this.countryList, "hide");
@@ -1270,6 +1272,7 @@ Plugin.prototype = {
     forEach(this.countryListItems, function(element) {
 
       element.removeEventListener("mouseover", onListItemMouseover);
+      element.removeEventListener("click", onDesktopCountryItemClicked);
     });
   },
 

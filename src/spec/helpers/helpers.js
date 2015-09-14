@@ -76,7 +76,9 @@ var getFlagsContainerElement = function(i) {
 var selectFlag = function(countryCode, i) {
   i = i || input;
   dispatchEvent(getSelectedFlagContainer(i)[0], "click", true, false);
-  getListElement(i).find("li[data-country-code='" + countryCode + "']").click();
+
+  var element = getListElement(i)[0].querySelector("li[data-country-code='" + countryCode + "']");
+  dispatchEvent(element, "click", true, false);
 };
 
 var putCursorAtEnd = function() {

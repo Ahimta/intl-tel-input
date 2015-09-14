@@ -784,13 +784,14 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this._eventListeners.onListItemMouseover = function(e) {
                 that._highlightListItem(this);
             };
-            // FIXME: tests still pass when this statement is commented out -_-
-            forEach(this.countryListItems, function(element) {
-                element.addEventListener("mouseover", that._eventListeners.onListItemMouseover);
-            });
             // listen for country selection
-            $(this.countryList).on("click" + this.ns, ".country", function(e) {
+            this._eventListeners.onDesktopCountryItemClicked = function(e) {
                 that._selectListItem(this);
+            };
+            forEach(this.countryListItems, function(element) {
+                // FIXME: tests still pass when this line is commented out -_-
+                element.addEventListener("click", that._eventListeners.onDesktopCountryItemClicked);
+                element.addEventListener("mouseover", that._eventListeners.onListItemMouseover);
             });
             // click off to close
             // (except when this initial opening click is bubbling up)
@@ -1025,6 +1026,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // close the dropdown and unbind any listeners
         _closeDropdown: function() {
+            var onDesktopCountryItemClicked = this._eventListeners.onDesktopCountryItemClicked;
             var onListItemMouseover = this._eventListeners.onListItemMouseover;
             addClass(this.countryList, "hide");
             // update the arrow
@@ -1038,6 +1040,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             $(this.countryList).off(this.ns);
             forEach(this.countryListItems, function(element) {
                 element.removeEventListener("mouseover", onListItemMouseover);
+                element.removeEventListener("click", onDesktopCountryItemClicked);
             });
         },
         // check if an element is visible within it's container, else scroll until it is

@@ -235,7 +235,8 @@ describe("vanilla:", function() {
           var countryCode = "gb";
 
           beforeEach(function() {
-            getListElement().find("li[data-country-code='" + countryCode + "']").click();
+            var element = getListElement()[0].querySelector("li[data-country-code='" + countryCode + "']");
+            dispatchEvent(element, "click", true, false);
           });
 
           it("updates the selected flag", function() {
