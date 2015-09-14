@@ -986,9 +986,8 @@ Plugin.prototype = {
     // use keydown as keypress doesn't fire for non-char keys and we want to catch if they
     // just hit down and hold it to scroll down (no keyup event).
     // listen on the document because that's where key events are triggered if no input has focus
-    var query = "",
-      queryTimer = null;
-    $(document).on("keydown" + this.ns, function(e) {
+    // FIXME: maybe it's better to only preventDefault() if we know how to handle the key
+    this._eventListeners.onDocumentKeydown = function(e) {
       // prevent down key from scrolling the whole page,
       // and enter key from submitting a form etc
       e.preventDefault();
@@ -1015,7 +1014,12 @@ Plugin.prototype = {
           query = "";
         }, 1000);
       }
-    });
+    };
+
+    var query = "",
+      queryTimer = null;
+    $(document).on("keydown" + this.ns, this._eventListeners.onDocumentKeydown);
+    // document.addEventListener("keydown", this._eventListeners.onDocumentKeydown);
   },
 
 
@@ -1153,7 +1157,7 @@ Plugin.prototype = {
   // remove highlighting from other list items and highlight the given item
   _highlightListItem: function(listItem) {
 
-    forEach(this.countryListItems, function (element) {
+    forEach(this.countryList.querySelectorAll(".highlight"), function (element) {
 
       removeClass(element, "highlight");
     });
@@ -1206,7 +1210,7 @@ Plugin.prototype = {
     } else {
       // update the active list item
 
-      forEach(this.countryListItems, function(element) {
+      forEach(this.countryList.querySelectorAll(".active"), function(element) {
 
         removeClass(element, "active");
       });

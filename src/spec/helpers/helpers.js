@@ -96,6 +96,15 @@ var getKeyEvent = function(key, type) {
   });
 };
 
+var dispatchKeyEvent = function(element, eventName, key) {
+  var event = document.createEvent("HTMLEvents");
+  event.initEvent(eventName, true, true);
+  event.view = window;
+  event.keyCode = key;
+  event.which = key;
+  element.dispatchEvent(event);
+}
+
 // trigger keydown, then keypress, then add the key, then keyup
 var triggerKeyOnInput = function(key) {
   input.trigger(getKeyEvent(key, "keydown"));
@@ -111,6 +120,9 @@ var triggerKeyOnInput = function(key) {
 };
 
 var triggerKeyOnBody = function(key) {
+  // dispatchKeyEvent(document.body, "keydown", keyCodes[key]);
+  // dispatchKeyEvent(document.body, "keypress", keyCodes[key]);
+  // dispatchKeyEvent(document.body, "keyup", keyCodes[key]);
   $("body").trigger(getKeyEvent(key, "keydown"));
   $("body").trigger(getKeyEvent(key, "keypress"));
   $("body").trigger(getKeyEvent(key, "keyup"));

@@ -737,7 +737,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 }
                 // if autoFormat, we must manually trigger change event if value has changed
                 // FIXME: tests pass when this statement is commented out -_-
-                if (that.options.autoFormat && window.intlTelInputUtils && that.element.value != that.element.getAttribute("data-focus-val")) {}
+                if (that.options.autoFormat && window.intlTelInputUtils && that.element.value != that.element.getAttribute("data-focus-val")) {
+                    $(that.element).trigger("change");
+                }
             };
             this.element.addEventListener("focus", this._eventListeners.onElementFocused);
             this.element.addEventListener("blur", this._eventListeners.onElementBlurred);
@@ -809,8 +811,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // use keydown as keypress doesn't fire for non-char keys and we want to catch if they
             // just hit down and hold it to scroll down (no keyup event).
             // listen on the document because that's where key events are triggered if no input has focus
-            var query = "", queryTimer = null;
-            $(document).on("keydown" + this.ns, function(e) {
+            // FIXME: maybe it's better to only preventDefault() if we know how to handle the key
+            this._eventListeners.onDocumentKeydown = function(e) {
                 // prevent down key from scrolling the whole page,
                 // and enter key from submitting a form etc
                 e.preventDefault();
@@ -836,7 +838,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         query = "";
                     }, 1e3);
                 }
-            });
+            };
+            var query = "", queryTimer = null;
+            $(document).on("keydown" + this.ns, this._eventListeners.onDocumentKeydown);
         },
         // highlight the next/prev item in the list (and ensure it is visible)
         _handleUpDownKey: function(key) {
@@ -947,7 +951,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // remove highlighting from other list items and highlight the given item
         _highlightListItem: function(listItem) {
-            forEach(this.countryListItems, function(element) {
+            forEach(this.countryList.querySelectorAll(".highlight"), function(element) {
                 removeClass(element, "highlight");
             });
             addClass(listItem, "highlight");
@@ -989,7 +993,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this.countryList.value = countryCode;
             } else {
                 // update the active list item
-                forEach(this.countryListItems, function(element) {
+                forEach(this.countryList.querySelectorAll(".active"), function(element) {
                     removeClass(element, "active");
                 });
                 if (countryCode) {
