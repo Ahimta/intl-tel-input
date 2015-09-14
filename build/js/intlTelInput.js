@@ -681,15 +681,16 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _initFocusListeners: function() {
             var that = this;
             if (this.options.autoHideDialCode) {
-                // mousedown decides where the cursor goes, so if we're focusing we must preventDefault as we'll be inserting the dial code, and we want the cursor to be at the end no matter where they click
-                $(this.element).on("mousedown" + this.ns, function(e) {
+                this._eventListeners.onElementMousedown = function(e) {
                     // FIXME: tests still pass when this statement is commented out -_-
                     if (that.element.parentNode.querySelector(":focus") !== that.element && !that.element.value) {
                         e.preventDefault();
                         // but this also cancels the focus, so we must trigger that manually
                         that.element.focus();
                     }
-                });
+                };
+                // mousedown decides where the cursor goes, so if we're focusing we must preventDefault as we'll be inserting the dial code, and we want the cursor to be at the end no matter where they click
+                this.element.addEventListener("mousedown", this._eventListeners.onElementMousedown);
             }
             $(this.element).on("focus" + this.ns, function(e) {
                 var value = that.element.value;
@@ -1128,6 +1129,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             }
             // key events, and focus/blur events if autoHideDialCode=true
             $(this.element).off(this.ns);
+            if (this.options.autoHideDialCode) {
+                this.element.removeEventListener("mousedown", this._eventListeners.onElementMousedown);
+            }
             if (this.isMobile) {
                 // change event on select country
                 this.countryList.removeEventListener("change", this._eventListeners.onMobileCountryListChange);
