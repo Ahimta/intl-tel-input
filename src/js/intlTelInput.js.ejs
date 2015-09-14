@@ -829,7 +829,7 @@ Plugin.prototype = {
       this.element.addEventListener("mousedown", this._eventListeners.onElementMousedown);
     }
 
-    $(this.element).on("focus" + this.ns, function(e) {
+    this._eventListeners.onElementFocused = function(e) {
       var value = that.element.value;
 
       // save this to compare on blur
@@ -860,9 +860,10 @@ Plugin.prototype = {
           }
         });
       }
-    });
+    };
 
-    $(this.element).on("blur" + this.ns, function() {
+    this._eventListeners.onElementBlurred = function() {
+
       if (that.options.autoHideDialCode) {
         // on blur: if just a dial code then remove it
         var value = that.element.value,
@@ -884,7 +885,10 @@ Plugin.prototype = {
           that.element.value != that.element.getAttribute("data-focus-val")) {
         $(that.element).trigger("change");
       }
-    });
+    };
+
+    this.element.addEventListener("focus", this._eventListeners.onElementFocused);
+    this.element.addEventListener("blur", this._eventListeners.onElementBlurred);
 
     // made the decision not to trigger blur() now, because would only do anything in the case where they manually set the initial value to just a dial code, in which case they probably want it to be displayed.
   },
@@ -1395,6 +1399,8 @@ Plugin.prototype = {
 
     this.element.removeEventListener("paste", this._eventListeners.onElementCutOrPaste);
     this.element.removeEventListener("cut", this._eventListeners.onElementCutOrPaste);
+    this.element.removeEventListener("focus", this._eventListeners.onElementFocused);
+    this.element.removeEventListener("blur", this._eventListeners.onElementBlurred);
 
     if (this.options.autoHideDialCode) {
       this.element.removeEventListener("mousedown", this._eventListeners.onElementMousedown);

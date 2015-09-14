@@ -694,7 +694,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // mousedown decides where the cursor goes, so if we're focusing we must preventDefault as we'll be inserting the dial code, and we want the cursor to be at the end no matter where they click
                 this.element.addEventListener("mousedown", this._eventListeners.onElementMousedown);
             }
-            $(this.element).on("focus" + this.ns, function(e) {
+            this._eventListeners.onElementFocused = function(e) {
                 var value = that.element.value;
                 // save this to compare on blur
                 // FIXME: tests pass when this line is commented out -_-
@@ -720,8 +720,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         }
                     });
                 }
-            });
-            $(this.element).on("blur" + this.ns, function() {
+            };
+            this._eventListeners.onElementBlurred = function() {
                 if (that.options.autoHideDialCode) {
                     // on blur: if just a dial code then remove it
                     var value = that.element.value, startsPlus = value.charAt(0) == "+";
@@ -737,10 +737,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 }
                 // if autoFormat, we must manually trigger change event if value has changed
                 // FIXME: tests pass when this statement is commented out -_-
-                if (that.options.autoFormat && window.intlTelInputUtils && that.element.value != that.element.getAttribute("data-focus-val")) {
-                    $(that.element).trigger("change");
-                }
-            });
+                if (that.options.autoFormat && window.intlTelInputUtils && that.element.value != that.element.getAttribute("data-focus-val")) {}
+            };
+            this.element.addEventListener("focus", this._eventListeners.onElementFocused);
+            this.element.addEventListener("blur", this._eventListeners.onElementBlurred);
         },
         // extract the numeric digits from the given string
         _getNumeric: function(s) {
@@ -1136,6 +1136,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             $(this.element).off(this.ns);
             this.element.removeEventListener("paste", this._eventListeners.onElementCutOrPaste);
             this.element.removeEventListener("cut", this._eventListeners.onElementCutOrPaste);
+            this.element.removeEventListener("focus", this._eventListeners.onElementFocused);
+            this.element.removeEventListener("blur", this._eventListeners.onElementBlurred);
             if (this.options.autoHideDialCode) {
                 this.element.removeEventListener("mousedown", this._eventListeners.onElementMousedown);
             }
