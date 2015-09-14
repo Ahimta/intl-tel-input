@@ -123,14 +123,14 @@ describe("autoFormat option:", function() {
 
     it("replacing the val with a number (faking a paste event) re-adds the plus", function() {
       input.val("1");
-      input.trigger("paste");
+      dispatchEvent(input[0], "paste", true, false);
       jasmine.clock().tick(1);
       expect(getInputVal()).toEqual("+1 ");
     });
 
     it("replacing the val with an alpha (faking a paste event) re-adds the plus and removes the alpha", function() {
       input.val("a");
-      input.trigger("paste");
+      dispatchEvent(input[0], "paste", true, false);
       jasmine.clock().tick(1);
       expect(getInputVal()).toEqual("+");
     });

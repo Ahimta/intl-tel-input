@@ -541,7 +541,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 });
             }
             // handle cut/paste event (now supported in all major browsers)
-            $(this.element).on("cut" + this.ns + " paste" + this.ns, function() {
+            this._eventListeners.onElementCutOrPaste = function() {
                 // hack because "paste" event is fired before input is updated
                 setTimeout(function() {
                     if (that.options.autoFormat && window.intlTelInputUtils) {
@@ -554,7 +554,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         that._updateFlagFromNumber(that.element.value);
                     }
                 });
-            });
+            };
+            this.element.addEventListener("paste", this._eventListeners.onElementCutOrPaste);
+            this.element.addEventListener("cut", this._eventListeners.onElementCutOrPaste);
             // handle keyup event
             // if autoFormat enabled: we use keyup to catch delete events (after the fact)
             // if no autoFormat, this is used to update the flag
@@ -1132,6 +1134,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             }
             // key events, and focus/blur events if autoHideDialCode=true
             $(this.element).off(this.ns);
+            this.element.removeEventListener("paste", this._eventListeners.onElementCutOrPaste);
+            this.element.removeEventListener("cut", this._eventListeners.onElementCutOrPaste);
             if (this.options.autoHideDialCode) {
                 this.element.removeEventListener("mousedown", this._eventListeners.onElementMousedown);
             }
