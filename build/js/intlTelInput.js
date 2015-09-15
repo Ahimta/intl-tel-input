@@ -440,7 +440,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 selectedFlag.addEventListener("click", this._eventListeners.onSelectedFlagClicked);
             }
             // open dropdown list if currently focused
-            $(this.flagsContainer).on("keydown" + that.ns, function(e) {
+            this._eventListeners.onFlagKeydown = function(e) {
                 var isDropdownHidden = hasClass(that.countryList, "hide");
                 if (isDropdownHidden && (e.which == keys.UP || e.which == keys.DOWN || e.which == keys.SPACE || e.which == keys.ENTER)) {
                     // prevent form from being submitted if "ENTER" was pressed
@@ -453,7 +453,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (e.which == keys.TAB) {
                     that._closeDropdown();
                 }
-            });
+            };
+            this.flagsContainer.addEventListener("keydown", this._eventListeners.onFlagKeydown);
         },
         _initRequests: function() {
             var that = this;
@@ -1159,6 +1160,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 var label = getClosestLabel(this.element);
                 var selectedFlag = this.selectedFlagInner.parentNode;
                 // click event to open dropdown
+                this.flagsContainer.removeEventListener("keydown", this._eventListeners.onFlagKeydown);
                 selectedFlag.removeEventListener("click", this.onSelectedFlagClicked);
                 if (label) {
                     label.removeEventListener("click", this._eventListeners.onLabelClicked);

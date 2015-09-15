@@ -513,7 +513,7 @@ Plugin.prototype = {
     }
 
     // open dropdown list if currently focused
-    $(this.flagsContainer).on("keydown" + that.ns, function(e) {
+    this._eventListeners.onFlagKeydown = function(e) {
       var isDropdownHidden = hasClass(that.countryList, "hide");
 
       if (isDropdownHidden &&
@@ -533,7 +533,9 @@ Plugin.prototype = {
       if (e.which == keys.TAB) {
         that._closeDropdown();
       }
-    });
+    };
+
+    this.flagsContainer.addEventListener("keydown", this._eventListeners.onFlagKeydown);
   },
 
 
@@ -1428,6 +1430,7 @@ Plugin.prototype = {
       var selectedFlag = this.selectedFlagInner.parentNode;
 
       // click event to open dropdown
+      this.flagsContainer.removeEventListener("keydown", this._eventListeners.onFlagKeydown);
       selectedFlag.removeEventListener("click", this.onSelectedFlagClicked);
 
       if (label) { label.removeEventListener("click", this._eventListeners.onLabelClicked); }

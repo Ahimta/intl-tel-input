@@ -130,7 +130,7 @@ var triggerKeyOnBody = function(key) {
 };
 
 var triggerKeyOnFlagsContainerElement = function(key) {
-  getFlagsContainerElement().trigger(getKeyEvent(key, "keydown"));
+  dispatchKeyEvent(getFlagsContainerElement()[0], "keydown", getKeyCode(key));
 };
 
 var dispatchEvent = function(element, name, bubbles, cancellable) {
