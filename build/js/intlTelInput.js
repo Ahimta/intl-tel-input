@@ -801,12 +801,13 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // (except when this initial opening click is bubbling up)
             // we cannot just stopPropagation as it may be needed to close another instance
             var isOpening = true;
-            $("html").on("click" + this.ns, function(e) {
+            this._eventListeners.onHtmlClicked = function(e) {
                 if (!isOpening) {
                     that._closeDropdown();
                 }
                 isOpening = false;
-            });
+            };
+            document.addEventListener("click", this._eventListeners.onHtmlClicked);
             // listen for up/down scrolling, enter to select, or letters to jump to country name.
             // use keydown as keypress doesn't fire for non-char keys and we want to catch if they
             // just hit down and hold it to scroll down (no keyup event).
@@ -1041,6 +1042,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // unbind key events
             $(document).off(this.ns);
             // unbind click-off-to-close
+            document.removeEventListener("click", this._eventListeners.onHtmlClicked);
             $("html").off(this.ns);
             // unbind hover and click listeners
             $(this.countryList).off(this.ns);

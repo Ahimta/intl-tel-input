@@ -224,7 +224,7 @@ describe("vanilla:", function() {
         });
 
         it("clicking off closes the dropdown", function() {
-          $("body").click();
+          dispatchEvent(document, "click", true, true);
           expect(getListElement()).toHaveClass("hide");
         });
 
