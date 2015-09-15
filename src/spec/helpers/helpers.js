@@ -119,13 +119,14 @@ var triggerKeyOnInput = function(key) {
   input.trigger(getKeyEvent(key, "keyup"));
 };
 
+var getKeyCode = function(key) {
+  return (key.length > 1) ? keyCodes[key] : key.charCodeAt(0);
+};
+
 var triggerKeyOnBody = function(key) {
-  // dispatchKeyEvent(document.body, "keydown", keyCodes[key]);
-  // dispatchKeyEvent(document.body, "keypress", keyCodes[key]);
-  // dispatchKeyEvent(document.body, "keyup", keyCodes[key]);
-  $("body").trigger(getKeyEvent(key, "keydown"));
-  $("body").trigger(getKeyEvent(key, "keypress"));
-  $("body").trigger(getKeyEvent(key, "keyup"));
+  dispatchKeyEvent(document, "keydown", getKeyCode(key));
+  dispatchKeyEvent(document, "keypress", getKeyCode(key));
+  dispatchKeyEvent(document, "keyup", getKeyCode(key));
 };
 
 var triggerKeyOnFlagsContainerElement = function(key) {

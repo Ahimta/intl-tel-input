@@ -817,6 +817,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // just hit down and hold it to scroll down (no keyup event).
             // listen on the document because that's where key events are triggered if no input has focus
             // FIXME: maybe it's better to only preventDefault() if we know how to handle the key
+            var query = "", queryTimer = null;
             this._eventListeners.onDocumentKeydown = function(e) {
                 // prevent down key from scrolling the whole page,
                 // and enter key from submitting a form etc
@@ -844,8 +845,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     }, 1e3);
                 }
             };
-            var query = "", queryTimer = null;
-            $(document).on("keydown" + this.ns, this._eventListeners.onDocumentKeydown);
+            document.addEventListener("keydown", this._eventListeners.onDocumentKeydown);
         },
         // highlight the next/prev item in the list (and ensure it is visible)
         _handleUpDownKey: function(key) {
@@ -1037,19 +1037,19 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // close the dropdown and unbind any listeners
         _closeDropdown: function() {
-            var onDesktopCountryItemClicked = this._eventListeners.onDesktopCountryItemClicked;
-            var onListItemMouseover = this._eventListeners.onListItemMouseover;
             addClass(this.countryList, "hide");
             // update the arrow
             // FIXED: arrow is a child of selectedFlag no selectedFlagInner
             removeClass(this.selectedFlagInner.parentNode.querySelector(".arrow"), "up");
             // unbind key events
             $(document).off(this.ns);
+            document.removeEventListener("keydown", this._eventListeners.onDocumentKeydown);
             // unbind click-off-to-close
             document.removeEventListener("click", this._eventListeners.onHtmlClicked);
             $("html").off(this.ns);
             // unbind hover and click listeners
-            $(this.countryList).off(this.ns);
+            var onDesktopCountryItemClicked = this._eventListeners.onDesktopCountryItemClicked;
+            var onListItemMouseover = this._eventListeners.onListItemMouseover;
             forEach(this.countryListItems, function(element) {
                 element.removeEventListener("mouseover", onListItemMouseover);
                 element.removeEventListener("click", onDesktopCountryItemClicked);
