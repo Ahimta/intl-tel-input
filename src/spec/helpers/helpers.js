@@ -96,14 +96,41 @@ var getKeyEvent = function(key, type) {
   });
 };
 
-var dispatchKeyEvent = function(element, eventName, key) {
+var getKeyCode = function(key) {
+  return (key.length > 1) ? keyCodes[key] : key.charCodeAt(0);
+};
+
+var getNativeKeyEvent = function(eventName, key, bubbles, cancellable) {
   var event = document.createEvent("HTMLEvents");
-  event.initEvent(eventName, true, true);
-  event.view = window;
-  event.keyCode = key;
-  event.which = key;
-  element.dispatchEvent(event);
+  var code = getKeyCode(key);
+
+  event.keyCode = code;
+  event.which = code;
+  event.initEvent(eventName, bubbles, cancellable);
+
+  return event;
 }
+
+var dispatchKeyEvent = function(element, eventName, key) {
+  var event = getNativeKeyEvent(eventName, key, true, true);
+  return element.dispatchEvent(event);
+}
+
+var triggerNativeKeyOnInput = function(key) {
+  var element = input[0];
+  var e = getNativeKeyEvent("keypress", key, true, true);
+
+  element.dispatchEvent(getNativeKeyEvent("keydown", key, true, true));
+  element.dispatchEvent(e);
+
+  // insert char
+  if (!e.defaultPrevented) {
+    var val = element.value;
+    element.value = val.substr(0, element.selectionStart) + key + val.substring(element.selectionEnd, val.length);
+  }
+
+  element.dispatchEvent(getNativeKeyEvent("keyup", key, true, true));
+};
 
 // trigger keydown, then keypress, then add the key, then keyup
 var triggerKeyOnInput = function(key) {
@@ -119,18 +146,14 @@ var triggerKeyOnInput = function(key) {
   input.trigger(getKeyEvent(key, "keyup"));
 };
 
-var getKeyCode = function(key) {
-  return (key.length > 1) ? keyCodes[key] : key.charCodeAt(0);
-};
-
 var triggerKeyOnBody = function(key) {
-  dispatchKeyEvent(document, "keydown", getKeyCode(key));
-  dispatchKeyEvent(document, "keypress", getKeyCode(key));
-  dispatchKeyEvent(document, "keyup", getKeyCode(key));
+  document.dispatchEvent(getNativeKeyEvent("keydown", key, true, true));
+  document.dispatchEvent(getNativeKeyEvent("keypress", key, true, true));
+  document.dispatchEvent(getNativeKeyEvent("keyup", key, true, true));
 };
 
 var triggerKeyOnFlagsContainerElement = function(key) {
-  dispatchKeyEvent(getFlagsContainerElement()[0], "keydown", getKeyCode(key));
+  dispatchKeyEvent(getFlagsContainerElement()[0], "keydown", key);
 };
 
 var dispatchEvent = function(element, name, bubbles, cancellable) {

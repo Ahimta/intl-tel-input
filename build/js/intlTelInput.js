@@ -517,7 +517,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // use keypress event as we want to ignore all input except for a select few keys,
                 // but we dont want to ignore the navigation keys like the arrows etc.
                 // NOTE: no point in refactoring this to only bind these listeners on focus/blur because then you would need to have those 2 listeners running the whole time anyway...
-                $(this.element).on("keypress" + this.ns, function(e) {
+                this._eventListeners.onElementKeypress = function(e) {
                     // 32 is space, and after that it's all chars (not meta/nav keys)
                     // this fix is needed for Firefox, which triggers keypress event for some meta/nav keys
                     // Update: also ignore if this is a metaKey e.g. FF and Safari trigger keypress on the v of Ctrl+v
@@ -543,7 +543,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                             that._handleInvalidKey();
                         }
                     }
-                });
+                };
+                this.element.addEventListener("keypress", this._eventListeners.onElementKeypress);
             }
             // handle cut/paste event (now supported in all major browsers)
             this._eventListeners.onElementCutOrPaste = function() {
@@ -1151,6 +1152,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this.element.removeEventListener("blur", this._eventListeners.onElementBlurred);
             if (this.options.autoHideDialCode) {
                 this.element.removeEventListener("mousedown", this._eventListeners.onElementMousedown);
+            }
+            if (this.options.autoFormat) {
+                this.element.removeEventListener("keypress", this._eventListeners.onElementKeypress);
             }
             if (this.isMobile) {
                 // change event on select country

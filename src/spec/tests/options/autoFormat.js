@@ -41,9 +41,9 @@ describe("autoFormat option:", function() {
 
     //TODO: this should be in it's own preventInvalidNumbers test file, with more tests
     it("adding too many digits does work even tho it breaks the formatting", function() {
-      triggerKeyOnInput("2");
-      triggerKeyOnInput("2");
-      triggerKeyOnInput("2");
+      triggerNativeKeyOnInput("2");
+      triggerNativeKeyOnInput("2");
+      triggerNativeKeyOnInput("2");
       expect(getInputVal()).toEqual(unformattedNumber + "222");
     });
 
@@ -51,10 +51,10 @@ describe("autoFormat option:", function() {
       selectFlag("gb");
       input.val("0141 534 40");
       // adding a 0 here changes the formatting to "01415 34400", which previously stopped this char from appearing
-      triggerKeyOnInput("0");
+      triggerNativeKeyOnInput("0");
       expect(getInputVal()).toEqual("01415 34400");
       // and back again
-      triggerKeyOnInput("0");
+      triggerNativeKeyOnInput("0");
       expect(getInputVal()).toEqual("0141 534 4000");
     });
 
@@ -75,21 +75,21 @@ describe("autoFormat option:", function() {
     });
 
     it("adding a 6th char doesnt add the normal formatting suffix", function() {
-      triggerKeyOnInput("2");
+      triggerNativeKeyOnInput("2");
       expect(getInputVal()).toEqual("+1 702");
     });
 
     it("typing a 7th char doesnt do anything", function() {
-      triggerKeyOnInput("2");
-      triggerKeyOnInput("4");
+      triggerNativeKeyOnInput("2");
+      triggerNativeKeyOnInput("4");
       expect(getInputVal()).toEqual("+1 702");
     });
 
     it("focusing input (at the maximum length) with cursor in middle, typing char doesnt do anything", function() {
-      triggerKeyOnInput("2");
+      triggerNativeKeyOnInput("2");
       input.focus();
       input[0].setSelectionRange(4, 4);
-      triggerKeyOnInput("4");
+      triggerNativeKeyOnInput("4");
       expect(getInputVal()).toEqual("+1 702");
     });
 
@@ -165,7 +165,7 @@ describe("autoFormat option:", function() {
       });
 
       it("triggering alpha key at end of input adds the alpha char and leaves the rest", function() {
-        triggerKeyOnInput("A");
+        triggerNativeKeyOnInput("A");
 
         expect(input.val()).toEqual(unformattedNumber + "A");
       });
@@ -188,7 +188,7 @@ describe("autoFormat option:", function() {
       it("triggering alpha key at end of input does not add the alpha char", function() {
         // we dont have to manually alter the input val as when autoFormat is enabled this is all done in the event handler
         putCursorAtEnd();
-        triggerKeyOnInput("A");
+        triggerNativeKeyOnInput("A");
         expect(input.val()).toEqual(formattedNumber);
       });
 
@@ -198,7 +198,7 @@ describe("autoFormat option:", function() {
         input.val("+");
         putCursorAtEnd();
         // this is handled by the keypress handler, and so will insert the char for you
-        triggerKeyOnInput("1");
+        triggerNativeKeyOnInput("1");
         expect(input.val()).toEqual("+1 ");
       });
 
@@ -206,7 +206,7 @@ describe("autoFormat option:", function() {
         // backspace key event is handled by the keyup handler, which expects the input val to already be updated, so instead of "+1 7", I have already removed the 7
         input.val("+1 ");
         putCursorAtEnd();
-        triggerKeyOnInput("BACKSPACE");
+        triggerNativeKeyOnInput("BACKSPACE");
         expect(input.val()).toEqual("+1");
       });
 
@@ -222,13 +222,13 @@ describe("autoFormat option:", function() {
 
         it("hitting a number will re-add the formatting in between", function() {
           // this is handled by the keypress handler, and so will insert the char for you
-          triggerKeyOnInput("7");
+          triggerNativeKeyOnInput("7");
           expect(input.val()).toEqual("+1 7");
         });
 
         it("hitting any non-number char (e.g. a space) will re-add the formatting suffix", function() {
           // this is handled by the keypress handler, and so will insert the char for you
-          triggerKeyOnInput(" ");
+          triggerNativeKeyOnInput(" ");
           expect(input.val()).toEqual("+1 ");
           // and move the cursor to the end
           expect(input[0].selectionStart).toEqual(input.val().length);
@@ -249,7 +249,7 @@ describe("autoFormat option:", function() {
         });
 
         it("hitting a non-number char doesn't do anything", function() {
-          triggerKeyOnInput(" ");
+          triggerNativeKeyOnInput(" ");
           expect(input.val()).toEqual(formattedNumber);
           // check selection remains
           expect(input[0].selectionStart).toEqual(cursorStart);
@@ -257,7 +257,7 @@ describe("autoFormat option:", function() {
         });
 
         it("hitting a number char will replace the selection, reformat, and put the cursor in the right place", function() {
-          triggerKeyOnInput("9");
+          triggerNativeKeyOnInput("9");
           expect(input.val()).toEqual("+1 941-812-");
           // cursor
           expect(input[0].selectionStart).toEqual(cursorStart + 1);
