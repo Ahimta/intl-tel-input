@@ -138,7 +138,6 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         var body = document.body;
         return Math.max(body.scrollHeight, html.scrollHeight, body.offsetHeight, html.offsetHeight, body.clientHeight, html.clientHeight);
     }
-    function closest(htmlElement, selector) {}
     function forEach(elements, fn) {
         for (var i = 0; i < elements.length; i++) {
             fn(elements[i]);
@@ -152,6 +151,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         } else {
             return null;
         }
+    }
+    function dispatchEvent(element, eventName, bubbles, cancellable) {
+        var e = document.createEvent("HTMLEvents");
+        e.initEvent(eventName, bubbles, cancellable);
+        element.dispatchEvent(e);
     }
     var storage = {
         get: function(key) {
@@ -738,7 +742,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // if autoFormat, we must manually trigger change event if value has changed
                 // FIXME: tests pass when this statement is commented out -_-
                 if (that.options.autoFormat && window.intlTelInputUtils && that.element.value != that.element.getAttribute("data-focus-val")) {
-                    $(that.element).trigger("change");
+                    dispatchEvent(that.element, "change", true, false);
                 }
             };
             this.element.addEventListener("focus", this._eventListeners.onElementFocused);

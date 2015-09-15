@@ -137,10 +137,6 @@ function getDocumentHeight() {
     body.clientHeight, html.clientHeight);
 }
 
-function closest(htmlElement, selector) {
-
-}
-
 function forEach(elements, fn) {
 
   for (var i = 0; i < elements.length; i++) { fn(elements[i]); }
@@ -151,6 +147,14 @@ function getClosestLabel(element) {
   if (element.tagName === "label") { return element;                             }
   else if (element.parentNode)     { return getClosestLabel(element.parentNode); }
   else                             { return null;                                }
+}
+
+function dispatchEvent(element, eventName, bubbles, cancellable) {
+
+  var e = document.createEvent("HTMLEvents");
+  e.initEvent(eventName, bubbles, cancellable);
+
+  element.dispatchEvent(e);
 }
 
 var storage = {
@@ -883,7 +887,8 @@ Plugin.prototype = {
       // FIXME: tests pass when this statement is commented out -_-
       if (that.options.autoFormat && window.intlTelInputUtils &&
           that.element.value != that.element.getAttribute("data-focus-val")) {
-        $(that.element).trigger("change");
+
+        dispatchEvent(that.element, "change", true, false);
       }
     };
 
