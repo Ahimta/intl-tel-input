@@ -155,7 +155,17 @@ https://github.com/Bluefieldscom/intl-tel-input.git
     function dispatchEvent(element, eventName, bubbles, cancellable) {
         var e = document.createEvent("HTMLEvents");
         e.initEvent(eventName, bubbles, cancellable);
-        element.dispatchEvent(e);
+        return element.dispatchEvent(e);
+    }
+    function dispatchCustomEvent(element, eventName, bubbles, cancellable, data) {
+        var event;
+        if (window.CustomEvent) {
+            event = new CustomEvent(eventName, data);
+        } else {
+            event = document.createEvent("CustomEvent");
+            event.initCustomEvent(eventName, bubbles, cancellable, data);
+        }
+        return element.dispatchEvent(event);
     }
     var storage = {
         get: function(key) {
@@ -536,7 +546,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                             that._handleInputKey(newChar, true, isAllowedKey);
                             // if something has changed, trigger the input event (which was otherwised squashed by the preventDefault)
                             if (val != that.element.value) {
-                                $(that.element).trigger("input");
+                                dispatchEvent(that.element, "input", true, false);
                             }
                         }
                         if (!isAllowedKey) {
@@ -607,7 +617,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         // alert the user to an invalid key event
         _handleInvalidKey: function() {
             var that = this;
-            $(this.element).trigger("invalidkey");
+            dispatchCustomEvent(this.element, "invalidkey", true, true);
             addClass(this.element, "iti-invalid-key");
             setTimeout(function() {
                 removeClass(that.element, "iti-invalid-key");
@@ -744,7 +754,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         }
                     }
                     // remove the keypress listener we added on focus
-                    $(that.element).off("keypress.plus" + that.ns);
+                    forEach(that._eventListeners.plusPressedListeners, function(listener) {
+                        that.element.removeEventListener("keypress", listener);
+                    });
+                    that._eventListeners.plusPressedListeners = [];
                 }
                 // if autoFormat, we must manually trigger change event if value has changed
                 // FIXME: tests pass when this statement is commented out -_-
@@ -1033,7 +1046,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             }
             this._updateDialCode(listItem.getAttribute("data-dial-code"), true);
             // always fire the change event as even if nationalMode=true (and we haven't updated the input val), the system as a whole has still changed - see country-sync example. think of it as making a selection from a select element.
-            $(this.element).trigger("change");
+            dispatchEvent(this.element, "change", true, false);
             // focus the input
             this.element.focus();
             // fix for FF and IE11 (with nationalMode=false i.e. auto inserting dial code), who try to put the cursor at the beginning the first time
@@ -1049,11 +1062,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // FIXED: arrow is a child of selectedFlag no selectedFlagInner
             removeClass(this.selectedFlagInner.parentNode.querySelector(".arrow"), "up");
             // unbind key events
-            $(document).off(this.ns);
             document.removeEventListener("keydown", this._eventListeners.onDocumentKeydown);
             // unbind click-off-to-close
             document.removeEventListener("click", this._eventListeners.onHtmlClicked);
-            $("html").off(this.ns);
             // unbind hover and click listeners
             var onDesktopCountryItemClicked = this._eventListeners.onDesktopCountryItemClicked;
             var onListItemMouseover = this._eventListeners.onListItemMouseover;
@@ -1149,11 +1160,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // make sure the dropdown is closed (and unbind listeners)
                 this._closeDropdown();
             }
-            // key events, and focus/blur events if autoHideDialCode=true
-            $(this.element).off(this.ns);
             this.element.removeEventListener("paste", this._eventListeners.onElementCutOrPaste);
             this.element.removeEventListener("cut", this._eventListeners.onElementCutOrPaste);
             this.element.removeEventListener("keyup", this._eventListeners.onElementKeyup);
+            // key events, and focus/blur events if autoHideDialCode=true
             if (this.options.autoHideDialCode || this.options.autoFormat) {
                 var element = this.element;
                 element.removeEventListener("focus", this._eventListeners.onElementFocused);
@@ -1161,6 +1171,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 forEach(this._eventListeners.plusPressedListeners, function(listener) {
                     element.removeEventListener("keypress", listener);
                 });
+                this._eventListeners.plusPressedListeners = [];
             }
             if (this.options.autoHideDialCode) {
                 this.element.removeEventListener("mousedown", this._eventListeners.onElementMousedown);
