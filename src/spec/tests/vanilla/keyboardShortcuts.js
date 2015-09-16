@@ -12,7 +12,8 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
 
   describe("when dropdown is closed", function () {
     beforeEach(function () {
-      getFlagsContainerElement().focus();
+      // FIXME: tests still pass when this line is commented out -_-
+      getFlagsContainerElement()[0].focus();
     });
 
     it("pressing UP opens the dropdown", function () {
@@ -48,13 +49,13 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
 
     it("pressing up while on the top item does not change the highlighted item", function() {
       triggerKeyOnBody("UP");
-      var topItem = getListElement().find("li.country:eq(0)");
+      var topItem = getListElement()[0].querySelector("li.country:first-child");
       expect(topItem).toHaveClass("highlight");
     });
 
     it("pressing z highlights Zambia", function() {
       triggerKeyOnBody("Z");
-      var zambiaListItem = getListElement().find("li[data-country-code='zm']");
+      var zambiaListItem = getListElement()[0].querySelector("li[data-country-code='zm']");
       expect(zambiaListItem).toHaveClass("highlight");
     });
 
@@ -62,7 +63,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
       triggerKeyOnBody("Z");
       triggerKeyOnBody("Z");
       triggerKeyOnBody("Z");
-      var zambiaListItem = getListElement().find("li[data-country-code='zm']");
+      var zambiaListItem = getListElement()[0].querySelector("li[data-country-code='zm']");
       expect(zambiaListItem).toHaveClass("highlight");
     });
 
@@ -71,14 +72,14 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
       var lastItem;
 
       beforeEach(function() {
-        lastItem = getListElement().find("li.country:last");
+        lastItem = getListElement()[0].querySelector("li.country:last-child");
         triggerKeyOnBody("Z");
         triggerKeyOnBody("I");
       });
 
       it("highlights the last item, which is Zimbabwe", function() {
         expect(lastItem).toHaveClass("highlight");
-        expect(lastItem.attr("data-country-code")).toEqual("zw");
+        expect(lastItem.getAttribute("data-country-code")).toEqual("zw");
       });
 
       it("pressing down while on the last item does not change the highlighted item", function() {
@@ -96,10 +97,11 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
       });
 
       it("changes the highlighted item", function() {
-        var listElement = getListElement();
-        var topItem = listElement.find("li.country:eq(0)");
+        var listElement = getListElement()[0];
+        var topItem = listElement.querySelector("li.country:first-child");
+        var secondItem = listElement.querySelector("li.country:nth-child(2)");
+
         expect(topItem).not.toHaveClass("highlight");
-        var secondItem = listElement.find("li.country:eq(1)");
         expect(secondItem).toHaveClass("highlight");
       });
 
@@ -112,10 +114,11 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
         });
 
         it("changes the active item", function() {
-          var listElement = getListElement();
-          var topItem = listElement.find("li.country:eq(0)");
+          var listElement = getListElement()[0];
+          var topItem = listElement.querySelector("li.country:first-child");
+          var secondItem = listElement.querySelector("li.country:nth-child(2)");
+
           expect(topItem).not.toHaveClass("active");
-          var secondItem = listElement.find("li.country:eq(1)");
           expect(secondItem).toHaveClass("active");
         });
 

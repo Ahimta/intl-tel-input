@@ -13,8 +13,6 @@ describe("isValidNumber:", function() {
   });
 
 
-
-
   describe("init plugin and call public method isValidNumber", function() {
 
     beforeEach(function() {

@@ -25,7 +25,7 @@ describe("vanilla:", function() {
     });
 
     it("sets the active list item correctly", function() {
-      expect(getActiveListItem().attr("data-country-code")).toEqual("gb");
+      expect(getActiveListItem()[0].getAttribute("data-country-code")).toEqual("gb");
     });
 
   });
@@ -49,7 +49,7 @@ describe("vanilla:", function() {
     });
 
     it("sets the active list item correctly", function() {
-      expect(getActiveListItem().attr("data-country-code")).toEqual("us");
+      expect(getActiveListItem()[0].getAttribute("data-country-code")).toEqual("us");
     });
 
   });
@@ -89,7 +89,7 @@ describe("vanilla:", function() {
     });
 
     it("sets the active list item correctly", function() {
-      expect(getActiveListItem().attr("data-country-code")).toEqual("us");
+      expect(getActiveListItem()[0].getAttribute("data-country-code")).toEqual("us");
     });
 
     // autoHideDialCode defaults to true, which means dont show dial code until focused
@@ -111,7 +111,7 @@ describe("vanilla:", function() {
 
       it("adding a space doesnt reset to the default country for that dial code", function() {
         // FIXME: tests still pass when this line is commented out -_-
-        triggerKeyOnInput(" ");
+        triggerNativeKeyOnInput(" ");
         expect(getSelectedFlagElement()).toHaveClass("ca");
       });
 
@@ -122,7 +122,7 @@ describe("vanilla:", function() {
     describe("typing a number with a different dial code", function() {
 
       beforeEach(function() {
-        input.val("+44 1234567");
+        input[0].value = "+44 1234567";
         triggerNativeKeyOnInput(" ");
       });
 
@@ -133,7 +133,7 @@ describe("vanilla:", function() {
       it("clearing the input again does not change the selected flag", function() {
         input.val("");
         // FIXME: tests still pass when this line is commented out -_-
-        triggerKeyOnInput(" ");
+        triggerNativeKeyOnInput(" ");
         expect(getSelectedFlagElement()).toHaveClass("gb");
       });
 
@@ -147,7 +147,7 @@ describe("vanilla:", function() {
         key = "1";
 
       beforeEach(function() {
-        input.val("+4 4 " + telNo);
+        input[0].value = "+4 4 " + telNo;
         triggerNativeKeyOnInput(key);
       });
 
@@ -170,7 +170,7 @@ describe("vanilla:", function() {
         key = "1";
 
       beforeEach(function() {
-        input.val("+4.4 " + telNo);
+        input[0].value = "+4.4 " + telNo;
         triggerNativeKeyOnInput(key);
       });
 
@@ -191,19 +191,20 @@ describe("vanilla:", function() {
     describe("adding to dom", function() {
 
       beforeEach(function() {
-        getParentElement().appendTo($("body"));
+        document.body.appendChild(getParentElement()[0]);
       });
 
       afterEach(function() {
-        getParentElement().remove();
+        var parentElement = getParentElement()[0];
+        parentElement.parentNode.removeChild(parentElement);
       });
 
       // autoHideDialCode defaults to true
       it("focusing the input adds the default dial code, and blur removes it again", function() {
         expect(getInputVal()).toEqual("");
-        input.focus();
+        input[0].focus();
         expect(getInputVal()).toEqual("+1");
-        input.blur();
+        input[0].blur();
         expect(getInputVal()).toEqual("");
       });
 
@@ -216,7 +217,7 @@ describe("vanilla:", function() {
 
         it("opens the dropdown with the top item marked as active and highlighted", function() {
           expect(getListElement()).not.toHaveClass("hide");
-          var topItem = getListElement().find("li.country:first");
+          var topItem = getListElement()[0].querySelector("li.country:first-child");
           expect(topItem).toHaveClass("active highlight");
         });
 
@@ -278,7 +279,7 @@ describe("vanilla:", function() {
       describe("input disabled", function() {
 
         beforeEach(function() {
-          input.prop("disabled", true);
+          input[0].disabled = true;
         });
 
         // apparently it is impossible to trigger a CSS psuedo selector like :hover

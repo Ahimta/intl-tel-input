@@ -22,14 +22,21 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
       onlyCountries: ['kr', chinaCountryCode, 'ru', albaniaCountryCode],
       nationalMode: false
     });
-    $("body").append(getParentElement(input)).append(getParentElement(input2));
+
+    document.body.appendChild(getParentElement(input)[0]);
+    document.body.appendChild(getParentElement(input2)[0]);
   });
 
   afterEach(function() {
-    getParentElement(input).remove();
-    getParentElement(input2).remove();
+    var parent1 = getParentElement(input)[0];
+    var parent2 = getParentElement(input2)[0];
+
+    parent1.parentNode.removeChild(parent1);
+    parent2.parentNode.removeChild(parent2);
+
     input.intlTelInput("destroy");
     input2.intlTelInput("destroy");
+
     input = input2 = null;
   });
 
@@ -50,8 +57,10 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
   });
 
   it("updating the number on the first input only updates the flag on that input", function() {
-    input.val(chinaDialCode + " 123456");
+    input[0].value = chinaDialCode + " 123456";
+
     triggerNativeKeyOnInput(" ");
+
     expect(getSelectedFlagElement()).toHaveClass(chinaCountryCode);
     expect(getSelectedFlagElement(input2)).toHaveClass(albaniaCountryCode);
   });

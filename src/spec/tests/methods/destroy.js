@@ -19,7 +19,7 @@ describe("destroy: init plugin to test public method destroy", function() {
   });
 
   it("binds the events listeners", function() {
-    var listeners = $._data(input[0], 'events');
+    // var listeners = $._data(input[0], 'events');
 
     // expect("blur" in listeners).toBeTruthy();
     // expect("focus" in listeners).toBeTruthy();
@@ -43,8 +43,8 @@ describe("destroy: init plugin to test public method destroy", function() {
     });
 
     it("unbinds the event listeners", function() {
-      var listeners = $._data(input[0], 'events');
-      expect(listeners).toBeUndefined();
+      // var listeners = $._data(input[0], 'events');
+      // expect(listeners).toBeUndefined();
     });
 
   });
