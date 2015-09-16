@@ -110,6 +110,7 @@ describe("vanilla:", function() {
       });
 
       it("adding a space doesnt reset to the default country for that dial code", function() {
+        // FIXME: tests still pass when this line is commented out -_-
         triggerKeyOnInput(" ");
         expect(getSelectedFlagElement()).toHaveClass("ca");
       });
@@ -131,6 +132,7 @@ describe("vanilla:", function() {
 
       it("clearing the input again does not change the selected flag", function() {
         input.val("");
+        // FIXME: tests still pass when this line is commented out -_-
         triggerKeyOnInput(" ");
         expect(getSelectedFlagElement()).toHaveClass("gb");
       });
