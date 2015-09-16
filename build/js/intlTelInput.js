@@ -701,6 +701,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // mousedown decides where the cursor goes, so if we're focusing we must preventDefault as we'll be inserting the dial code, and we want the cursor to be at the end no matter where they click
                 this.element.addEventListener("mousedown", this._eventListeners.onElementMousedown);
             }
+            this._eventListeners.plusPressedListeners = [];
             this._eventListeners.onElementFocused = function(e) {
                 var value = that.element.value;
                 // save this to compare on blur
@@ -710,14 +711,17 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (that.options.autoHideDialCode && !value && !that.element.readonly && that.selectedCountryData.dialCode) {
                     that._updateVal("+" + that.selectedCountryData.dialCode, null, true);
                     // after auto-inserting a dial code, if the first key they hit is '+' then assume they are entering a new number, so remove the dial code. use keypress instead of keydown because keydown gets triggered for the shift key (required to hit the + key), and instead of keyup because that shows the new '+' before removing the old one
-                    $(that.element).one("keypress.plus" + that.ns, function(e) {
+                    var onElementPlusPressed = function(e) {
                         if (e.which == keys.PLUS) {
                             // if autoFormat is enabled, this key event will have already have been handled by another keypress listener (hence we need to add the "+"). if disabled, it will be handled after this by a keyup listener (hence no need to add the "+").
                             var newVal = that.options.autoFormat && window.intlTelInputUtils ? "+" : "";
                             // FIXME: tests still pass when this line is commented out -_-
                             that.element.value = newVal;
                         }
-                    });
+                        that.element.removeEventListener("keypress", onElementPlusPressed);
+                    };
+                    that.element.addEventListener("keypress", onElementPlusPressed);
+                    that._eventListeners.plusPressedListeners.push(onElementPlusPressed);
                     // after tabbing in, make sure the cursor is at the end we must use setTimeout to get outside of the focus handler as it seems the selection happens after that
                     setTimeout(function() {
                         // FIXME: tests still pass when this statement is commented out -_-
@@ -1152,6 +1156,12 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this.element.removeEventListener("focus", this._eventListeners.onElementFocused);
             this.element.removeEventListener("blur", this._eventListeners.onElementBlurred);
             this.element.removeEventListener("keyup", this._eventListeners.onElementKeyup);
+            if (this.options.autoHideDialCode || this.options.autoFormat) {
+                var element = this.element;
+                forEach(this._eventListeners.plusPressedListeners, function(listener) {
+                    element.removeEventListener("keypress", listener);
+                });
+            }
             if (this.options.autoHideDialCode) {
                 this.element.removeEventListener("mousedown", this._eventListeners.onElementMousedown);
             }
