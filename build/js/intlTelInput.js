@@ -311,14 +311,16 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             var arrow = document.createElement("div");
             arrow.className = "arrow";
             this.selectedFlagInner = selectedFlagInner;
+            this.selectedFlag = selectedFlag;
             this.flagsContainer = flagsContainer;
+            this.arrow = arrow;
             // Do DOM manipulation last since manipulations are order-dependent and tightly coupled
             // This check is necessary since this element may have been created without a parent using Javascript
             if (this.element.parentNode) {
                 this.element.parentNode.insertBefore(wrapper, this.element);
             }
             wrapper.appendChild(this.element);
-            this.element.parentNode.insertBefore(flagsContainer, this.element);
+            wrapper.insertBefore(flagsContainer, this.element);
             // currently selected flag (displayed to left of input)
             flagsContainer.appendChild(selectedFlag);
             selectedFlag.appendChild(selectedFlagInner);
@@ -437,7 +439,6 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     label.addEventListener("click", this._eventListeners.onLabelClicked);
                 }
                 // toggle country dropdown on click
-                var selectedFlag = this.selectedFlagInner.parentNode;
                 this._eventListeners.onSelectedFlagClicked = function(e) {
                     // only intercept this event if we're opening the dropdown
                     // else let it bubble up to the top ("click-off-to-close" listener)
@@ -446,7 +447,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         that._showDropdown();
                     }
                 };
-                selectedFlag.addEventListener("click", this._eventListeners.onSelectedFlagClicked);
+                this.selectedFlag.addEventListener("click", this._eventListeners.onSelectedFlagClicked);
             }
             // open dropdown list if currently focused
             this._eventListeners.onFlagKeydown = function(e) {
@@ -792,7 +793,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this._bindDropdownListeners();
             // update the arrow
             // FIXED: arrow is a child of selectedFlag not selectedFlagInner
-            addClass(this.selectedFlagInner.parentNode.querySelector(".arrow"), "up");
+            // FIXME: tests still pass when this line is commented -_-
+            addClass(this.arrow, "up");
         },
         // decide where to position dropdown (depends on position within viewport, and scroll)
         _setDropdownPosition: function() {
@@ -1009,7 +1011,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this.selectedFlagInner.className = "iti-flag " + countryCode;
             // update the selected country's title attribute
             var title = countryCode ? this.selectedCountryData.name + ": +" + this.selectedCountryData.dialCode : "Unknown";
-            this.selectedFlagInner.parentNode.setAttribute("title", title);
+            this.selectedFlag.setAttribute("title", title);
             // and the input's placeholder
             this._updatePlaceholder();
             if (this.isMobile) {
@@ -1059,7 +1061,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             addClass(this.countryList, "hide");
             // update the arrow
             // FIXED: arrow is a child of selectedFlag no selectedFlagInner
-            removeClass(this.selectedFlagInner.parentNode.querySelector(".arrow"), "up");
+            // FIXME: tests still pass when this line is commented out -_-
+            removeClass(this.arrow, "up");
             // unbind key events
             document.removeEventListener("keydown", this._eventListeners.onDocumentKeydown);
             // unbind click-off-to-close
@@ -1184,10 +1187,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             } else {
                 // label click hack
                 var label = getClosestLabel(this.element);
-                var selectedFlag = this.selectedFlagInner.parentNode;
                 // click event to open dropdown
                 this.flagsContainer.removeEventListener("keydown", this._eventListeners.onFlagKeydown);
-                selectedFlag.removeEventListener("click", this.onSelectedFlagClicked);
+                this.selectedFlag.removeEventListener("click", this.onSelectedFlagClicked);
                 if (label) {
                     label.removeEventListener("click", this._eventListeners.onLabelClicked);
                 }
