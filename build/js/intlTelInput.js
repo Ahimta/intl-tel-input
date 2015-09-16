@@ -1153,11 +1153,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             $(this.element).off(this.ns);
             this.element.removeEventListener("paste", this._eventListeners.onElementCutOrPaste);
             this.element.removeEventListener("cut", this._eventListeners.onElementCutOrPaste);
-            this.element.removeEventListener("focus", this._eventListeners.onElementFocused);
-            this.element.removeEventListener("blur", this._eventListeners.onElementBlurred);
             this.element.removeEventListener("keyup", this._eventListeners.onElementKeyup);
             if (this.options.autoHideDialCode || this.options.autoFormat) {
                 var element = this.element;
+                element.removeEventListener("focus", this._eventListeners.onElementFocused);
+                element.removeEventListener("blur", this._eventListeners.onElementBlurred);
                 forEach(this._eventListeners.plusPressedListeners, function(listener) {
                     element.removeEventListener("keypress", listener);
                 });
