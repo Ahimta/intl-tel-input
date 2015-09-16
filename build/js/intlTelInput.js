@@ -310,7 +310,6 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             selectedFlagInner.className = "iti-flag";
             var arrow = document.createElement("div");
             arrow.className = "arrow";
-            // Assign instance vars to JQuery instances to retain the same behavior
             this.selectedFlagInner = selectedFlagInner;
             this.flagsContainer = flagsContainer;
             // Do DOM manipulation last since manipulations are order-dependent and tightly coupled
