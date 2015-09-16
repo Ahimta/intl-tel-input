@@ -143,6 +143,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             fn(elements[i]);
         }
     }
+    function hasFocus(element) {
+        return element.parentNode && element.parentNode.querySelector(":focus") === element;
+    }
     function getClosestLabel(element) {
         if (element.tagName === "label") {
             return element;
@@ -702,7 +705,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             if (this.options.autoHideDialCode) {
                 this._eventListeners.onElementMousedown = function(e) {
                     // FIXME: tests still pass when this statement is commented out -_-
-                    if (that.element.parentNode.querySelector(":focus") !== that.element && !that.element.value) {
+                    if (!hasFocus(that.element) && !that.element.value) {
                         e.preventDefault();
                         // but this also cancels the focus, so we must trigger that manually
                         that.element.focus();
