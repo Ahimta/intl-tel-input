@@ -51,7 +51,7 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
 
   it("updating the number on the first input only updates the flag on that input", function() {
     input.val(chinaDialCode + " 123456");
-    triggerKeyOnInput(" ");
+    triggerNativeKeyOnInput(" ");
     expect(getSelectedFlagElement()).toHaveClass(chinaCountryCode);
     expect(getSelectedFlagElement(input2)).toHaveClass(albaniaCountryCode);
   });

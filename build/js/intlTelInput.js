@@ -566,7 +566,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // handle keyup event
             // if autoFormat enabled: we use keyup to catch delete events (after the fact)
             // if no autoFormat, this is used to update the flag
-            $(this.element).on("keyup" + this.ns, function(e) {
+            this._eventListeners.onElementKeyup = function(e) {
                 // the "enter" key event from selecting a dropdown item is triggered here on the input, because the document.keydown handler that initially handles that event triggers a focus on the input, and so the keyup for that same key event gets triggered here. weird, but just make sure we dont bother doing any re-formatting in this case (we've already done preventDefault in the keydown handler, so it wont actually submit the form or anything).
                 // ALSO: ignore keyup if readonly
                 if (e.which == keys.ENTER || that.element.readonly) {} else if (that.options.autoFormat && window.intlTelInputUtils) {
@@ -586,7 +586,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     // if no autoFormat, just update flag
                     that._updateFlagFromNumber(that.element.value);
                 }
-            });
+            };
+            this.element.addEventListener("keyup", this._eventListeners.onElementKeyup);
         },
         // prevent deleting the plus (if not in nationalMode)
         _ensurePlus: function() {
@@ -1150,6 +1151,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this.element.removeEventListener("cut", this._eventListeners.onElementCutOrPaste);
             this.element.removeEventListener("focus", this._eventListeners.onElementFocused);
             this.element.removeEventListener("blur", this._eventListeners.onElementBlurred);
+            this.element.removeEventListener("keyup", this._eventListeners.onElementKeyup);
             if (this.options.autoHideDialCode) {
                 this.element.removeEventListener("mousedown", this._eventListeners.onElementMousedown);
             }

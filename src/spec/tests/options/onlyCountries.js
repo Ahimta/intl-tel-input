@@ -50,7 +50,7 @@ describe("onlyCountries option:", function() {
 
     it("entering +7 defaults to the top priority country (Russia)", function() {
       input.val("+7");
-      triggerKeyOnInput(" ");
+      triggerNativeKeyOnInput(" ");
       expect(getSelectedFlagElement()).toHaveClass("ru");
     });
 

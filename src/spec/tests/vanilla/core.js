@@ -122,7 +122,7 @@ describe("vanilla:", function() {
 
       beforeEach(function() {
         input.val("+44 1234567");
-        triggerKeyOnInput(" ");
+        triggerNativeKeyOnInput(" ");
       });
 
       it("updates the selected flag", function() {
@@ -146,7 +146,7 @@ describe("vanilla:", function() {
 
       beforeEach(function() {
         input.val("+4 4 " + telNo);
-        triggerKeyOnInput(key);
+        triggerNativeKeyOnInput(key);
       });
 
       it("still updates the flag correctly", function() {
@@ -169,7 +169,7 @@ describe("vanilla:", function() {
 
       beforeEach(function() {
         input.val("+4.4 " + telNo);
-        triggerKeyOnInput(key);
+        triggerNativeKeyOnInput(key);
       });
 
       it("still updates the flag correctly", function() {
