@@ -217,7 +217,7 @@ describe("vanilla:", function() {
 
         it("opens the dropdown with the top item marked as active and highlighted", function() {
           expect(getListElement()).not.toHaveClass("hide");
-          var topItem = getListElement()[0].querySelector("li.country:first-child");
+          var topItem = getListElement().querySelector("li.country:first-child");
           expect(topItem).toHaveClass("active highlight");
         });
 
@@ -238,7 +238,7 @@ describe("vanilla:", function() {
           var countryCode = "gb";
 
           beforeEach(function() {
-            var element = getListElement()[0].querySelector("li[data-country-code='" + countryCode + "']");
+            var element = getListElement().querySelector("li[data-country-code='" + countryCode + "']");
             dispatchEvent(element, "click", true, false);
           });
 

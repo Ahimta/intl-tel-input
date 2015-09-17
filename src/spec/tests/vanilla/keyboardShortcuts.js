@@ -49,13 +49,13 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
 
     it("pressing up while on the top item does not change the highlighted item", function() {
       triggerKeyOnBody("UP");
-      var topItem = getListElement()[0].querySelector("li.country:first-child");
+      var topItem = getListElement().querySelector("li.country:first-child");
       expect(topItem).toHaveClass("highlight");
     });
 
     it("pressing z highlights Zambia", function() {
       triggerKeyOnBody("Z");
-      var zambiaListItem = getListElement()[0].querySelector("li[data-country-code='zm']");
+      var zambiaListItem = getListElement().querySelector("li[data-country-code='zm']");
       expect(zambiaListItem).toHaveClass("highlight");
     });
 
@@ -63,7 +63,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
       triggerKeyOnBody("Z");
       triggerKeyOnBody("Z");
       triggerKeyOnBody("Z");
-      var zambiaListItem = getListElement()[0].querySelector("li[data-country-code='zm']");
+      var zambiaListItem = getListElement().querySelector("li[data-country-code='zm']");
       expect(zambiaListItem).toHaveClass("highlight");
     });
 
@@ -72,7 +72,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
       var lastItem;
 
       beforeEach(function() {
-        lastItem = getListElement()[0].querySelector("li.country:last-child");
+        lastItem = getListElement().querySelector("li.country:last-child");
         triggerKeyOnBody("Z");
         triggerKeyOnBody("I");
       });
@@ -97,7 +97,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
       });
 
       it("changes the highlighted item", function() {
-        var listElement = getListElement()[0];
+        var listElement = getListElement();
         var topItem = listElement.querySelector("li.country:first-child");
         var secondItem = listElement.querySelector("li.country:nth-child(2)");
 
@@ -114,7 +114,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
         });
 
         it("changes the active item", function() {
-          var listElement = getListElement()[0];
+          var listElement = getListElement();
           var topItem = listElement.querySelector("li.country:first-child");
           var secondItem = listElement.querySelector("li.country:nth-child(2)");
 
