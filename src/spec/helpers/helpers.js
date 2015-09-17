@@ -1,5 +1,4 @@
-var input,
-  totalCountries = 233,
+var totalCountries = 233,
   totalDialCodes = 227,
   // don't call this "keys" as it will clash with the plugin
   keyCodes = {
@@ -29,18 +28,12 @@ var intlSetup = function(utilsScript) {
   }
 };
 
-var getInputVal = function(i) {
-  i = i || input;
-  return i[0].value;
-};
-
 var getParentElement = function(i) {
-  i = i || input;
+
   return i[0].parentNode;
 };
 
 var getListElement = function(i) {
-  i = i || input;
 
   var listElements = i[0].parentNode.querySelectorAll(".country-list");
 
@@ -50,12 +43,11 @@ var getListElement = function(i) {
 };
 
 var getListLength = function(i) {
-  i = i || input;
+
   return getListElement(i).querySelectorAll("li.country").length;
 };
 
 var getActiveListItem = function(i) {
-  i = i || input;
 
   var activeListItems = getListElement(i).querySelectorAll("li.active");
 
@@ -65,12 +57,11 @@ var getActiveListItem = function(i) {
 };
 
 var getPreferredCountriesLength = function(i) {
-  i = i || input;
+
   return getListElement(i).querySelectorAll("li.preferred").length;
 };
 
 var getSelectedFlagContainer = function(i) {
-  i = i || input;
 
   var selectedFlagContainers = i[0].parentNode.querySelectorAll(".selected-flag");
 
@@ -80,7 +71,6 @@ var getSelectedFlagContainer = function(i) {
 };
 
 var getSelectedFlagElement = function(i) {
-  i = i || input;
 
   var selectedFlagElement = getSelectedFlagContainer(i).querySelectorAll(".iti-flag");
 
@@ -90,7 +80,6 @@ var getSelectedFlagElement = function(i) {
 };
 
 var getFlagsContainerElement = function(i) {
-  i = i || input;
   var flagContainerElement = i[0].parentNode.querySelectorAll(".flag-dropdown");
 
   // there should be only one flag container element
@@ -105,7 +94,6 @@ var dispatchEvent = function(element, name, bubbles, cancellable) {
 }
 
 var selectFlag = function(countryCode, i) {
-  i = i || input;
   dispatchEvent(getSelectedFlagContainer(i), "click", true, false);
 
   var elements = getListElement(i).querySelectorAll("li[data-country-code='" + countryCode + "']");
@@ -116,13 +104,15 @@ var selectFlag = function(countryCode, i) {
   dispatchEvent(elements[0], "click", true, false);
 };
 
-var putCursorAtEnd = function() {
-  var len = input[0].value.length;
-  selectInputChars(len, len);
+var putCursorAtEnd = function(i) {
+
+  var len = i[0].value.length;
+  selectInputChars(len, len, i);
 };
 
-var selectInputChars = function(start, end) {
-  input[0].setSelectionRange(start, end);
+var selectInputChars = function(start, end, i) {
+
+  i[0].setSelectionRange(start, end);
 };
 
 var getKeyCode = function(key) {
@@ -146,8 +136,8 @@ var dispatchKeyEvent = function(element, eventName, key) {
 }
 
 // trigger keydown, then keypress, then add the key, then keyup
-var triggerNativeKeyOnInput = function(key) {
-  var element = input[0];
+var triggerNativeKeyOnInput = function(key, i) {
+  var element = (i && i[0]) || input[0];
   var e = getNativeKeyEvent("keypress", key, true, true);
 
   element.dispatchEvent(getNativeKeyEvent("keydown", key, true, true));
@@ -168,6 +158,6 @@ var triggerKeyOnBody = function(key) {
   document.dispatchEvent(getNativeKeyEvent("keyup", key, true, true));
 };
 
-var triggerKeyOnFlagsContainerElement = function(key) {
-  dispatchKeyEvent(getFlagsContainerElement(), "keydown", key);
+var triggerKeyOnFlagsContainerElement = function(i, key) {
+  dispatchKeyEvent(getFlagsContainerElement(i), "keydown", key);
 };

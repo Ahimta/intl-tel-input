@@ -3,6 +3,7 @@
 describe("autoHideDialCode option:", function() {
 
   var defaultDialCode = "+1";
+  var input;
 
   beforeEach(function() {
     intlSetup();
@@ -23,24 +24,24 @@ describe("autoHideDialCode option:", function() {
         nationalMode: false
       });
       // must be in DOM for focus to work
-      document.body.appendChild(getParentElement());
+      document.body.appendChild(getParentElement(input));
     });
 
     afterEach(function() {
-      var parent = getParentElement();
+      var parent = getParentElement(input);
       parent.parentNode.removeChild(parent);
     });
 
     it("does not automatically insert the default dial code", function() {
-      expect(getInputVal()).toEqual("");
+      expect(input[0].value).toEqual("");
     });
 
     it("focusing the input adds the default dial code and blurring it removes it again", function() {
       input[0].focus();
-      expect(getInputVal()).toEqual("+1");
+      expect(input[0].value).toEqual("+1");
 
       input[0].blur();
-      expect(getInputVal()).toEqual("");
+      expect(input[0].value).toEqual("");
     });
 
 
@@ -55,10 +56,10 @@ describe("autoHideDialCode option:", function() {
 
       it("focusing and blurring the input doesn't change it", function() {
         input[0].focus();
-        expect(getInputVal()).toEqual(number);
+        expect(input[0].value).toEqual(number);
 
         input[0].blur();
-        expect(getInputVal()).toEqual(number);
+        expect(input[0].value).toEqual(number);
       });
 
     });
@@ -75,25 +76,25 @@ describe("autoHideDialCode option:", function() {
       });
 
       // FIXME: tests still pass when this line is commented out -_-
-      document.body.appendChild(getParentElement());
+      document.body.appendChild(getParentElement(input));
     });
 
     // FIXME: tests still pass when this function call is commented out -_-
     afterEach(function() {
-      var parent = getParentElement();
+      var parent = getParentElement(input);
       parent.parentNode.removeChild(parent);
     });
 
     it("automatically inserts the default dial code", function() {
-      expect(getInputVal()).toEqual(defaultDialCode);
+      expect(input[0].value).toEqual(defaultDialCode);
     });
 
     it("focusing and bluring the input dont change the val", function() {
       input[0].focus();
-      expect(getInputVal()).toEqual(defaultDialCode);
+      expect(input[0].value).toEqual(defaultDialCode);
 
       input[0].blur();
-      expect(getInputVal()).toEqual(defaultDialCode);
+      expect(input[0].value).toEqual(defaultDialCode);
     });
 
 
@@ -107,10 +108,10 @@ describe("autoHideDialCode option:", function() {
 
       it("focusing and blurring the input doesn't change it", function() {
         input[0].focus();
-        expect(getInputVal()).toEqual(number);
+        expect(input[0].value).toEqual(number);
 
         input[0].blur();
-        expect(getInputVal()).toEqual(number);
+        expect(input[0].value).toEqual(number);
       });
 
     });

@@ -3,6 +3,7 @@
 describe("selectCountry: init plugin and calling public method selectCountry()", function() {
 
   var countryCode = "gb";
+  var input;
 
   beforeEach(function() {
     intlSetup();
@@ -17,11 +18,11 @@ describe("selectCountry: init plugin and calling public method selectCountry()",
   });
 
   it("updates the selected flag", function() {
-    expect(getSelectedFlagElement()).toHaveClass(countryCode);
+    expect(getSelectedFlagElement(input)).toHaveClass(countryCode);
   });
 
   it("does not insert the dial code", function() {
-    expect(getInputVal()).toEqual("");
+    expect(input[0].value).toEqual("");
   });
 
 });

@@ -2,6 +2,8 @@
 
 describe("isValidNumber:", function() {
 
+  var input;
+
   beforeEach(function() {
     intlSetup(true);
     input = $("<input>");

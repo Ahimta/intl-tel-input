@@ -2,6 +2,8 @@
 
 describe("getSelectedCountryData: init plugin to test public method getSelectedCountryData", function() {
 
+  var input;
+
   beforeEach(function() {
     intlSetup();
     input = $("<input>");
@@ -19,12 +21,12 @@ describe("getSelectedCountryData: init plugin to test public method getSelectedC
 
   it("change country by number gets the right country data", function() {
     input[0].value = "+44";
-    triggerNativeKeyOnInput(" ");
+    triggerNativeKeyOnInput(" ", input);
     expect(input.intlTelInput("getSelectedCountryData").iso2).toEqual("gb");
   });
 
   it("change country by selecting a flag gets the right country data", function() {
-    selectFlag("ch");
+    selectFlag("ch", input);
     expect(input.intlTelInput("getSelectedCountryData").iso2).toEqual("ch");
   });
 

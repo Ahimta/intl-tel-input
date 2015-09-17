@@ -2,6 +2,8 @@
 
 describe("utilsScript: init plugin to test utilsScript option", function() {
 
+  var input;
+
   beforeEach(function() {
     intlSetup();
     input = $("<input>");

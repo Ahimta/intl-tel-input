@@ -3,6 +3,7 @@
 describe("onlyCountries option:", function() {
 
   var onlyCountries;
+  var input;
 
   beforeEach(function() {
     intlSetup();
@@ -29,11 +30,11 @@ describe("onlyCountries option:", function() {
     });
 
     it("defaults to the first onlyCountries alphabetically", function() {
-      expect(getSelectedFlagElement()).toHaveClass(chinaCountryCode);
+      expect(getSelectedFlagElement(input)).toHaveClass(chinaCountryCode);
     });
 
     it("has the right number of list items", function() {
-      expect(getListLength()).toEqual(onlyCountries.length);
+      expect(getListLength(input)).toEqual(onlyCountries.length);
     });
 
   });
@@ -50,8 +51,8 @@ describe("onlyCountries option:", function() {
 
     it("entering +7 defaults to the top priority country (Russia)", function() {
       input[0].value = "+7";
-      triggerNativeKeyOnInput(" ");
-      expect(getSelectedFlagElement()).toHaveClass("ru");
+      triggerNativeKeyOnInput(" ", input);
+      expect(getSelectedFlagElement(input)).toHaveClass("ru");
     });
 
   });

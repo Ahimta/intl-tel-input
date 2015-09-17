@@ -2,6 +2,8 @@
 
 describe("destroy: init plugin to test public method destroy", function() {
 
+  var input;
+
   beforeEach(function() {
     intlSetup();
     input = $("<input>");
@@ -13,9 +15,9 @@ describe("destroy: init plugin to test public method destroy", function() {
   });
 
   it("adds the markup", function() {
-    expect(getParentElement()).toHaveClass("intl-tel-input");
-    expect(getSelectedFlagContainer()).toExist();
-    expect(getListElement()).toExist();
+    expect(getParentElement(input)).toHaveClass("intl-tel-input");
+    expect(getSelectedFlagContainer(input)).toExist();
+    expect(getListElement(input)).toExist();
   });
 
   // NOTE: we can't get listeners using jQuery, since we are use native DOM API
@@ -38,9 +40,9 @@ describe("destroy: init plugin to test public method destroy", function() {
     });
 
     it("removes the markup", function() {
-      expect(getParentElement()).not.toHaveClass("intl-tel-input");
-      expect(getSelectedFlagContainer()).not.toExist();
-      expect(getListElement()).not.toExist();
+      expect(getParentElement(input)).not.toHaveClass("intl-tel-input");
+      expect(getSelectedFlagContainer(input)).not.toExist();
+      expect(getListElement(input)).not.toExist();
     });
 
    // NOTE: we can't get listeners using jQuery, since we are use native DOM API

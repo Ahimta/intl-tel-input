@@ -2,10 +2,11 @@
 
 describe("vanilla:", function() {
 
+  var input;
+
   beforeEach(function() {
     intlSetup();
   });
-
 
 
   describe("init plugin on input with prepopulated value", function() {
@@ -21,11 +22,11 @@ describe("vanilla:", function() {
     });
 
     it("sets the selected flag correctly", function() {
-      expect(getSelectedFlagElement()).toHaveClass("gb");
+      expect(getSelectedFlagElement(input)).toHaveClass("gb");
     });
 
     it("sets the active list item correctly", function() {
-      expect(getActiveListItem()[0].getAttribute("data-country-code")).toEqual("gb");
+      expect(getActiveListItem(input)[0].getAttribute("data-country-code")).toEqual("gb");
     });
 
   });
@@ -45,11 +46,11 @@ describe("vanilla:", function() {
     });
 
     it("sets the selected flag correctly", function() {
-      expect(getSelectedFlagElement()).toHaveClass("us");
+      expect(getSelectedFlagElement(input)).toHaveClass("us");
     });
 
     it("sets the active list item correctly", function() {
-      expect(getActiveListItem()[0].getAttribute("data-country-code")).toEqual("us");
+      expect(getActiveListItem(input)[0].getAttribute("data-country-code")).toEqual("us");
     });
 
   });
@@ -72,29 +73,29 @@ describe("vanilla:", function() {
 
 
     it("creates a container with the right class", function() {
-      expect(getParentElement()).toHaveClass("intl-tel-input");
+      expect(getParentElement(input)).toHaveClass("intl-tel-input");
     });
 
     // preferredCountries defaults to 2 countries
     it("has the right number of list items", function() {
       var defaultPreferredCountries = 2;
-      expect(getListLength()).toEqual(totalCountries + defaultPreferredCountries);
-      expect(getPreferredCountriesLength()).toEqual(defaultPreferredCountries);
+      expect(getListLength(input)).toEqual(totalCountries + defaultPreferredCountries);
+      expect(getPreferredCountriesLength(input)).toEqual(defaultPreferredCountries);
       // only 1 active list item
-      expect(getActiveListItem().length).toEqual(1);
+      expect(getActiveListItem(input).length).toEqual(1);
     });
 
     it("defaults to the right flag", function() {
-      expect(getSelectedFlagElement()).toHaveClass("us");
+      expect(getSelectedFlagElement(input)).toHaveClass("us");
     });
 
     it("sets the active list item correctly", function() {
-      expect(getActiveListItem()[0].getAttribute("data-country-code")).toEqual("us");
+      expect(getActiveListItem(input)[0].getAttribute("data-country-code")).toEqual("us");
     });
 
     // autoHideDialCode defaults to true, which means dont show dial code until focused
     it("doesn't automatically populate the input value on initialisation", function() {
-      expect(getInputVal()).toEqual("");
+      expect(input[0].value).toEqual("");
     });
 
 
@@ -102,17 +103,17 @@ describe("vanilla:", function() {
     describe("opening the dropdown and clicking on canada", function() {
 
       beforeEach(function() {
-        selectFlag("ca");
+        selectFlag("ca", input);
       });
 
       it("updates the selected flag", function() {
-        expect(getSelectedFlagElement()).toHaveClass("ca");
+        expect(getSelectedFlagElement(input)).toHaveClass("ca");
       });
 
       it("adding a space doesnt reset to the default country for that dial code", function() {
         // FIXME: tests still pass when this line is commented out -_-
-        triggerNativeKeyOnInput(" ");
-        expect(getSelectedFlagElement()).toHaveClass("ca");
+        triggerNativeKeyOnInput(" ", input);
+        expect(getSelectedFlagElement(input)).toHaveClass("ca");
       });
 
     });
@@ -123,18 +124,18 @@ describe("vanilla:", function() {
 
       beforeEach(function() {
         input[0].value = "+44 1234567";
-        triggerNativeKeyOnInput(" ");
+        triggerNativeKeyOnInput(" ", input);
       });
 
       it("updates the selected flag", function() {
-        expect(getSelectedFlagElement()).toHaveClass("gb");
+        expect(getSelectedFlagElement(input)).toHaveClass("gb");
       });
 
       it("clearing the input again does not change the selected flag", function() {
-        input.val("");
+        input[0].value = "";
         // FIXME: tests still pass when this line is commented out -_-
-        triggerNativeKeyOnInput(" ");
-        expect(getSelectedFlagElement()).toHaveClass("gb");
+        triggerNativeKeyOnInput(" ", input);
+        expect(getSelectedFlagElement(input)).toHaveClass("gb");
       });
 
     });
@@ -148,16 +149,16 @@ describe("vanilla:", function() {
 
       beforeEach(function() {
         input[0].value = "+4 4 " + telNo;
-        triggerNativeKeyOnInput(key);
+        triggerNativeKeyOnInput(key, input);
       });
 
       it("still updates the flag correctly", function() {
-        expect(getSelectedFlagElement()).toHaveClass("gb");
+        expect(getSelectedFlagElement(input)).toHaveClass("gb");
       });
 
       it("then changing the flag updates the number correctly", function() {
-        selectFlag("zw");
-        expect(getInputVal()).toEqual("+263 " + telNo + key);
+        selectFlag("zw", input);
+        expect(input[0].value).toEqual("+263 " + telNo + key);
       });
 
     });
@@ -171,16 +172,16 @@ describe("vanilla:", function() {
 
       beforeEach(function() {
         input[0].value = "+4.4 " + telNo;
-        triggerNativeKeyOnInput(key);
+        triggerNativeKeyOnInput(key, input);
       });
 
       it("still updates the flag correctly", function() {
-        expect(getSelectedFlagElement()).toHaveClass("gb");
+        expect(getSelectedFlagElement(input)).toHaveClass("gb");
       });
 
       it("then changing the flag updates the number correctly", function() {
-        selectFlag("zw");
-        expect(getInputVal()).toEqual("+263 " + telNo + key);
+        selectFlag("zw", input);
+        expect(input[0].value).toEqual("+263 " + telNo + key);
       });
 
     });
@@ -191,44 +192,44 @@ describe("vanilla:", function() {
     describe("adding to dom", function() {
 
       beforeEach(function() {
-        document.body.appendChild(getParentElement());
+        document.body.appendChild(getParentElement(input));
       });
 
       afterEach(function() {
-        var parentElement = getParentElement();
+        var parentElement = getParentElement(input);
         parentElement.parentNode.removeChild(parentElement);
       });
 
       // autoHideDialCode defaults to true
       it("focusing the input adds the default dial code, and blur removes it again", function() {
-        expect(getInputVal()).toEqual("");
+        expect(input[0].value).toEqual("");
         input[0].focus();
-        expect(getInputVal()).toEqual("+1");
+        expect(input[0].value).toEqual("+1");
         input[0].blur();
-        expect(getInputVal()).toEqual("");
+        expect(input[0].value).toEqual("");
       });
 
 
       describe("clicking the selected flag to open the dropdown", function() {
 
         beforeEach(function() {
-          dispatchEvent(getSelectedFlagContainer(), "click", true, false);;
+          dispatchEvent(getSelectedFlagContainer(input), "click", true, false);;
         });
 
         it("opens the dropdown with the top item marked as active and highlighted", function() {
-          expect(getListElement()).not.toHaveClass("hide");
-          var topItem = getListElement().querySelector("li.country:first-child");
+          expect(getListElement(input)).not.toHaveClass("hide");
+          var topItem = getListElement(input).querySelector("li.country:first-child");
           expect(topItem).toHaveClass("active highlight");
         });
 
         it("clicking it again closes the dropdown", function() {
-          dispatchEvent(getSelectedFlagContainer(), "click", true, false);;
-          expect(getListElement()).toHaveClass("hide");
+          dispatchEvent(getSelectedFlagContainer(input), "click", true, false);;
+          expect(getListElement(input)).toHaveClass("hide");
         });
 
         it("clicking off closes the dropdown", function() {
           dispatchEvent(document, "click", true, true);
-          expect(getListElement()).toHaveClass("hide");
+          expect(getListElement(input)).toHaveClass("hide");
         });
 
 
@@ -238,16 +239,16 @@ describe("vanilla:", function() {
           var countryCode = "gb";
 
           beforeEach(function() {
-            var element = getListElement().querySelector("li[data-country-code='" + countryCode + "']");
+            var element = getListElement(input).querySelector("li[data-country-code='" + countryCode + "']");
             dispatchEvent(element, "click", true, false);
           });
 
           it("updates the selected flag", function() {
-            expect(getSelectedFlagElement()).toHaveClass(countryCode);
+            expect(getSelectedFlagElement(input)).toHaveClass(countryCode);
           });
 
           it("updates the dial code", function() {
-            expect(getInputVal()).toEqual("+44");
+            expect(input[0].value).toEqual("+44");
           });
 
         });
@@ -270,8 +271,8 @@ describe("vanilla:", function() {
         });*/
 
         it("opens the dropdown on click", function() {
-          dispatchEvent(getSelectedFlagContainer(), "click", true, false);;
-          expect(getListElement()).not.toHaveClass("hide");
+          dispatchEvent(getSelectedFlagContainer(input), "click", true, false);;
+          expect(getListElement(input)).not.toHaveClass("hide");
         });
 
       });
@@ -290,8 +291,8 @@ describe("vanilla:", function() {
         });*/
 
         it("doesn't open the dropdown on click", function() {
-          dispatchEvent(getSelectedFlagContainer(), "click", true, false);;
-          expect(getListElement()).toHaveClass("hide");
+          dispatchEvent(getSelectedFlagContainer(input), "click", true, false);;
+          expect(getListElement(input)).toHaveClass("hide");
         });
 
       });

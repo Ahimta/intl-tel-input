@@ -2,6 +2,8 @@
 
 describe("setNumber: init (vanilla) plugin to call public method setNumber", function() {
 
+  var input;
+
   beforeEach(function() {
     intlSetup();
     input = $("<input>");
@@ -13,13 +15,13 @@ describe("setNumber: init (vanilla) plugin to call public method setNumber", fun
     input.intlTelInput("destroy");
     input = null;
   });
-  
+
   it("sets the input val to the given number", function() {
-    expect(getInputVal()).toEqual("+447733123456");
+    expect(input[0].value).toEqual("+447733123456");
   });
 
   it("updates the flag", function() {
-    expect(getSelectedFlagElement()).toHaveClass("gb");
+    expect(getSelectedFlagElement(input)).toHaveClass("gb");
   });
 
 });

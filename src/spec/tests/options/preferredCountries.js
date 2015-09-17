@@ -2,6 +2,8 @@
 
 describe("preferredCountries option:", function() {
 
+  var input;
+
   beforeEach(function() {
     intlSetup();
     input = $("<input>");
@@ -24,11 +26,11 @@ describe("preferredCountries option:", function() {
 
     it("defaults to the first country in the alphabet", function() {
       // Afghanistan
-      expect(getSelectedFlagElement()).toHaveClass("af");
+      expect(getSelectedFlagElement(input)).toHaveClass("af");
     });
 
     it("has the right number of list items", function() {
-      expect(getListLength()).toEqual(totalCountries);
+      expect(getListLength(input)).toEqual(totalCountries);
     });
 
   });
@@ -52,11 +54,11 @@ describe("preferredCountries option:", function() {
     });
 
     it("defaults to the first preferredCountries", function() {
-      expect(getSelectedFlagElement()).toHaveClass(preferredCountries[0]);
+      expect(getSelectedFlagElement(input)).toHaveClass(preferredCountries[0]);
     });
 
     it("has the right number of list items", function() {
-      expect(getListLength()).toEqual(totalCountries + preferredCountries.length);
+      expect(getListLength(input)).toEqual(totalCountries + preferredCountries.length);
     });
 
   });

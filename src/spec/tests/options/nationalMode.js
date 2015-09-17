@@ -3,6 +3,8 @@
 
 describe("nationalMode:", function() {
 
+  var input;
+
   beforeEach(function() {
     intlSetup();
   });
@@ -23,35 +25,35 @@ describe("nationalMode:", function() {
       });
       // must be in DOM for focus to work
       // FIXME: tests still pass when this line is commented out -_-
-      document.body.appendChild(getParentElement());
+      document.body.appendChild(getParentElement(input));
     });
 
     afterEach(function() {
-      var parent = getParentElement();
+      var parent = getParentElement(input);
       parent.parentNode.removeChild(parent);
     });
 
     it("defaults to no dial code", function() {
-      expect(getInputVal()).toEqual("");
+      expect(input[0].value).toEqual("");
     });
 
     it("focusing the input does not insert the dial code", function() {
       input.focus();
-      expect(getInputVal()).toEqual("");
+      expect(input[0].value).toEqual("");
     });
 
     it("selecting another country does not insert the dial code", function() {
-      selectFlag("gb");
-      expect(getInputVal()).toEqual("");
+      selectFlag("gb", input);
+      expect(input[0].value).toEqual("");
     });
 
     it("but typing a dial code does still update the selected country", function() {
       input[0].value = "+";
 
-      triggerNativeKeyOnInput("4");
-      triggerNativeKeyOnInput("4");
+      triggerNativeKeyOnInput("4", input);
+      triggerNativeKeyOnInput("4", input);
 
-      expect(getSelectedFlagElement()).toHaveClass("gb");
+      expect(getSelectedFlagElement(input)).toHaveClass("gb");
     });
 
   });
@@ -71,14 +73,14 @@ describe("nationalMode:", function() {
     });
 
     it("displays the number and has US flag selected", function() {
-      expect(getInputVal()).toEqual(nationalNum);
-      expect(getSelectedFlagElement()).toHaveClass("us");
+      expect(input[0].value).toEqual(nationalNum);
+      expect(getSelectedFlagElement(input)).toHaveClass("us");
     });
 
     it("changing to canadian area code updates flag", function() {
       input.val("204 555 555");
-      triggerNativeKeyOnInput("5"); // trigger update flag
-      expect(getSelectedFlagElement()).toHaveClass("ca");
+      triggerNativeKeyOnInput("5", input); // trigger update flag
+      expect(getSelectedFlagElement(input)).toHaveClass("ca");
     });
 
   });
@@ -97,14 +99,14 @@ describe("nationalMode:", function() {
     });
 
     it("displays the number and selects the right flag", function() {
-      expect(getInputVal()).toEqual(intlNumber);
-      expect(getSelectedFlagElement()).toHaveClass("gb");
+      expect(input[0].value).toEqual(intlNumber);
+      expect(getSelectedFlagElement(input)).toHaveClass("gb");
     });
 
     it("changing to another intl number updates the flag", function() {
       input.val("+34 5555555");
-      triggerNativeKeyOnInput("5"); // trigger update flag
-      expect(getSelectedFlagElement()).toHaveClass("es");
+      triggerNativeKeyOnInput("5", input); // trigger update flag
+      expect(getSelectedFlagElement(input)).toHaveClass("es");
     });
 
   });
