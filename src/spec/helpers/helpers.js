@@ -21,6 +21,7 @@ var intlSetup = function(utilsScript) {
   if (!window.intlTelInputUtilsBackup) {
     window.intlTelInputUtilsBackup = window.intlTelInputUtils;
   }
+
   if (utilsScript) {
     window.intlTelInputUtils = window.intlTelInputUtilsBackup;
   } else {
@@ -35,7 +36,7 @@ var getInputVal = function(i) {
 
 var getParentElement = function(i) {
   i = i || input;
-  return $(i[0].parentNode);
+  return i[0].parentNode;
 };
 
 var getListElement = function(i) {
@@ -70,7 +71,10 @@ var getSelectedFlagElement = function(i) {
 
 var getFlagsContainerElement = function(i) {
   i = i || input;
-  return $(i[0].parentNode.querySelector(".flag-dropdown"));
+  var flagContainerElement = i[0].parentNode.querySelector(".flag-dropdown");
+
+  if (flagContainerElement) { return flagContainerElement; }
+  else                      { throw new Error("*_*");      }
 };
 
 var dispatchEvent = function(element, name, bubbles, cancellable) {
@@ -88,7 +92,7 @@ var selectFlag = function(countryCode, i) {
 };
 
 var putCursorAtEnd = function() {
-  var len = input.val().length;
+  var len = input[0].value.length;
   selectInputChars(len, len);
 };
 
@@ -146,5 +150,5 @@ var triggerKeyOnBody = function(key) {
 };
 
 var triggerKeyOnFlagsContainerElement = function(key) {
-  dispatchKeyEvent(getFlagsContainerElement()[0], "keydown", key);
+  dispatchKeyEvent(getFlagsContainerElement(), "keydown", key);
 };

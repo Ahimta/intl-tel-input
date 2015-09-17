@@ -7,7 +7,7 @@ describe("autoFormat option:", function() {
   });
 
   afterEach(function() {
-    var parent = getParentElement()[0];
+    var parent = getParentElement();
 
     parent.parentNode.removeChild(parent);
 

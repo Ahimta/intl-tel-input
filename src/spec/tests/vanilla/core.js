@@ -191,11 +191,11 @@ describe("vanilla:", function() {
     describe("adding to dom", function() {
 
       beforeEach(function() {
-        document.body.appendChild(getParentElement()[0]);
+        document.body.appendChild(getParentElement());
       });
 
       afterEach(function() {
-        var parentElement = getParentElement()[0];
+        var parentElement = getParentElement();
         parentElement.parentNode.removeChild(parentElement);
       });
 

@@ -13,7 +13,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
   describe("when dropdown is closed", function () {
     beforeEach(function () {
       // FIXME: tests still pass when this line is commented out -_-
-      getFlagsContainerElement()[0].focus();
+      getFlagsContainerElement().focus();
     });
 
     it("pressing UP opens the dropdown", function () {
