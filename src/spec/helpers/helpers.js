@@ -51,7 +51,11 @@ var getListLength = function(i) {
 
 var getActiveListItem = function(i) {
   i = i || input;
-  return $(getListElement(i)[0].querySelector("li.active"));
+
+  var activeListItems = getListElement(i)[0].querySelectorAll("li.active");
+
+  if (activeListItems && activeListItems.length === 1) { return activeListItems; }
+  else                                                 { throw new Error("*_*"); }
 };
 
 var getPreferredCountriesLength = function(i) {
@@ -61,12 +65,16 @@ var getPreferredCountriesLength = function(i) {
 
 var getSelectedFlagContainer = function(i) {
   i = i || input;
-  return $(i[0].parentNode.querySelector(".selected-flag"));
+  return i[0].parentNode.querySelector(".selected-flag");
 };
 
 var getSelectedFlagElement = function(i) {
   i = i || input;
-  return $(getSelectedFlagContainer(i)[0].querySelector(".iti-flag"));
+
+  var selectedFlagElement = getSelectedFlagContainer(i).querySelector(".iti-flag");
+
+  if (selectedFlagElement) { return selectedFlagElement; }
+  else                     { throw new Error("*_*");     }
 };
 
 var getFlagsContainerElement = function(i) {
@@ -85,7 +93,7 @@ var dispatchEvent = function(element, name, bubbles, cancellable) {
 
 var selectFlag = function(countryCode, i) {
   i = i || input;
-  dispatchEvent(getSelectedFlagContainer(i)[0], "click", true, false);
+  dispatchEvent(getSelectedFlagContainer(i), "click", true, false);
 
   var element = getListElement(i)[0].querySelector("li[data-country-code='" + countryCode + "']");
   dispatchEvent(element, "click", true, false);

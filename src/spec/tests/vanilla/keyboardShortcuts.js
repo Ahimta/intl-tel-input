@@ -39,7 +39,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
 
   describe("when dropdown is opened", function () {
     beforeEach(function () {
-      dispatchEvent(getSelectedFlagContainer()[0], "click", true, false);;
+      dispatchEvent(getSelectedFlagContainer(), "click", true, false);;
     });
 
     it("pressing esc closes the popup", function() {

@@ -70,7 +70,7 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
   describe("clicking open dropdown on the first input", function() {
 
     beforeEach(function() {
-      dispatchEvent(getSelectedFlagContainer()[0], "click", true, false);
+      dispatchEvent(getSelectedFlagContainer(), "click", true, false);
     });
 
     it("only opens the dropdown on that input", function() {
@@ -79,7 +79,7 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
     });
 
     it("then clicking open dropdown on the second will close the first and open the second", function() {
-      dispatchEvent(getSelectedFlagContainer(input2)[0], "click", true, false);
+      dispatchEvent(getSelectedFlagContainer(input2), "click", true, false);
       expect(getListElement()).toHaveClass("hide");
       expect(getListElement(input2)).not.toHaveClass("hide");
     });
