@@ -15,49 +15,49 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
   describe("when dropdown is closed", function () {
     beforeEach(function () {
       // FIXME: tests still pass when this line is commented out -_-
-      getFlagsContainerElement(input).focus();
+      getFlagsContainerElement(input[0]).focus();
     });
 
     it("pressing UP opens the dropdown", function () {
-      triggerKeyOnFlagsContainerElement(input, "UP");
-      expect(getListElement(input)).not.toHaveClass("hide");
+      triggerKeyOnFlagsContainerElement(input[0], "UP");
+      expect(getListElement(input[0])).not.toHaveClass("hide");
     });
 
     it("pressing DOWN opens the dropdown", function () {
-      triggerKeyOnFlagsContainerElement(input, "DOWN");
-      expect(getListElement(input)).not.toHaveClass("hide");
+      triggerKeyOnFlagsContainerElement(input[0], "DOWN");
+      expect(getListElement(input[0])).not.toHaveClass("hide");
     });
 
     it("pressing SPACE opens the dropdown", function () {
-      triggerKeyOnFlagsContainerElement(input, "SPACE");
-      expect(getListElement(input)).not.toHaveClass("hide");
+      triggerKeyOnFlagsContainerElement(input[0], "SPACE");
+      expect(getListElement(input[0])).not.toHaveClass("hide");
     });
 
     it("pressing ENTER opens the dropdown", function () {
-      triggerKeyOnFlagsContainerElement(input, "ENTER");
-      expect(getListElement(input)).not.toHaveClass("hide");
+      triggerKeyOnFlagsContainerElement(input[0], "ENTER");
+      expect(getListElement(input[0])).not.toHaveClass("hide");
     });
   });
 
   describe("when dropdown is opened", function () {
     beforeEach(function () {
-      dispatchEvent(getSelectedFlagContainer(input), "click", true, false);;
+      dispatchEvent(getSelectedFlagContainer(input[0]), "click", true, false);;
     });
 
     it("pressing esc closes the popup", function() {
       triggerKeyOnBody("ESC");
-      expect(getListElement(input)).toHaveClass("hide");
+      expect(getListElement(input[0])).toHaveClass("hide");
     });
 
     it("pressing up while on the top item does not change the highlighted item", function() {
       triggerKeyOnBody("UP");
-      var topItem = getListElement(input).querySelector("li.country:first-child");
+      var topItem = getListElement(input[0]).querySelector("li.country:first-child");
       expect(topItem).toHaveClass("highlight");
     });
 
     it("pressing z highlights Zambia", function() {
       triggerKeyOnBody("Z");
-      var zambiaListItem = getListElement(input).querySelector("li[data-country-code='zm']");
+      var zambiaListItem = getListElement(input[0]).querySelector("li[data-country-code='zm']");
       expect(zambiaListItem).toHaveClass("highlight");
     });
 
@@ -65,7 +65,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
       triggerKeyOnBody("Z");
       triggerKeyOnBody("Z");
       triggerKeyOnBody("Z");
-      var zambiaListItem = getListElement(input).querySelector("li[data-country-code='zm']");
+      var zambiaListItem = getListElement(input[0]).querySelector("li[data-country-code='zm']");
       expect(zambiaListItem).toHaveClass("highlight");
     });
 
@@ -74,7 +74,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
       var lastItem;
 
       beforeEach(function() {
-        lastItem = getListElement(input).querySelector("li.country:last-child");
+        lastItem = getListElement(input[0]).querySelector("li.country:last-child");
         triggerKeyOnBody("Z");
         triggerKeyOnBody("I");
       });
@@ -99,7 +99,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
       });
 
       it("changes the highlighted item", function() {
-        var listElement = getListElement(input);
+        var listElement = getListElement(input[0]);
         var topItem = listElement.querySelector("li.country:first-child");
         var secondItem = listElement.querySelector("li.country:nth-child(2)");
 
@@ -116,7 +116,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
         });
 
         it("changes the active item", function() {
-          var listElement = getListElement(input);
+          var listElement = getListElement(input[0]);
           var topItem = listElement.querySelector("li.country:first-child");
           var secondItem = listElement.querySelector("li.country:nth-child(2)");
 
@@ -125,7 +125,7 @@ describe("keyboard shortcuts: init vanilla plugin (with nationalMode=false) to t
         });
 
         it("closes the dropdown", function() {
-          expect(getListElement(input)).toHaveClass("hide");
+          expect(getListElement(input[0])).toHaveClass("hide");
         });
 
         it("updates the dial code", function() {

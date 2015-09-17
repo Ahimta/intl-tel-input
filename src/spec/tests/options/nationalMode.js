@@ -43,17 +43,17 @@ describe("nationalMode:", function() {
     });
 
     it("selecting another country does not insert the dial code", function() {
-      selectFlag("gb", input);
+      selectFlag("gb", input[0]);
       expect(input[0].value).toEqual("");
     });
 
     it("but typing a dial code does still update the selected country", function() {
       input[0].value = "+";
 
-      triggerNativeKeyOnInput("4", input);
-      triggerNativeKeyOnInput("4", input);
+      triggerNativeKeyOnInput("4", input[0]);
+      triggerNativeKeyOnInput("4", input[0]);
 
-      expect(getSelectedFlagElement(input)).toHaveClass("gb");
+      expect(getSelectedFlagElement(input[0])).toHaveClass("gb");
     });
 
   });
@@ -74,13 +74,13 @@ describe("nationalMode:", function() {
 
     it("displays the number and has US flag selected", function() {
       expect(input[0].value).toEqual(nationalNum);
-      expect(getSelectedFlagElement(input)).toHaveClass("us");
+      expect(getSelectedFlagElement(input[0])).toHaveClass("us");
     });
 
     it("changing to canadian area code updates flag", function() {
       input.val("204 555 555");
-      triggerNativeKeyOnInput("5", input); // trigger update flag
-      expect(getSelectedFlagElement(input)).toHaveClass("ca");
+      triggerNativeKeyOnInput("5", input[0]); // trigger update flag
+      expect(getSelectedFlagElement(input[0])).toHaveClass("ca");
     });
 
   });
@@ -100,13 +100,13 @@ describe("nationalMode:", function() {
 
     it("displays the number and selects the right flag", function() {
       expect(input[0].value).toEqual(intlNumber);
-      expect(getSelectedFlagElement(input)).toHaveClass("gb");
+      expect(getSelectedFlagElement(input[0])).toHaveClass("gb");
     });
 
     it("changing to another intl number updates the flag", function() {
       input.val("+34 5555555");
-      triggerNativeKeyOnInput("5", input); // trigger update flag
-      expect(getSelectedFlagElement(input)).toHaveClass("es");
+      triggerNativeKeyOnInput("5", input[0]); // trigger update flag
+      expect(getSelectedFlagElement(input[0])).toHaveClass("es");
     });
 
   });

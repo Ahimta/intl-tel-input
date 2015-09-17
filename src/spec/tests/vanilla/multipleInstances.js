@@ -42,17 +42,17 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
   });
 
   it("instances have different country lists", function() {
-    expect(getListLength(input)).toEqual(2);
-    expect(getListLength(input2)).toEqual(4);
+    expect(getListLength(input[0])).toEqual(2);
+    expect(getListLength(input2[0])).toEqual(4);
   });
 
   it("instances have different default countries selected", function() {
-    expect(getSelectedFlagElement(input)).toHaveClass(afghanistanCountryCode);
-    expect(getSelectedFlagElement(input2)).toHaveClass(albaniaCountryCode);
+    expect(getSelectedFlagElement(input[0])).toHaveClass(afghanistanCountryCode);
+    expect(getSelectedFlagElement(input2[0])).toHaveClass(albaniaCountryCode);
   });
 
   it("selecting an item from the first input dropdown only updates the flag on that input", function() {
-    selectFlag(chinaCountryCode, input);
+    selectFlag(chinaCountryCode, input[0]);
     expect(input[0].value).toEqual(chinaDialCode);
     expect(input2[0].value).toEqual("");
   });
@@ -60,10 +60,10 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
   it("updating the number on the first input only updates the flag on that input", function() {
     input[0].value = chinaDialCode + " 123456";
 
-    triggerNativeKeyOnInput(" ", input);
+    triggerNativeKeyOnInput(" ", input[0]);
 
-    expect(getSelectedFlagElement(input)).toHaveClass(chinaCountryCode);
-    expect(getSelectedFlagElement(input2)).toHaveClass(albaniaCountryCode);
+    expect(getSelectedFlagElement(input[0])).toHaveClass(chinaCountryCode);
+    expect(getSelectedFlagElement(input2[0])).toHaveClass(albaniaCountryCode);
   });
 
 
@@ -71,18 +71,18 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
   describe("clicking open dropdown on the first input", function() {
 
     beforeEach(function() {
-      dispatchEvent(getSelectedFlagContainer(input), "click", true, false);
+      dispatchEvent(getSelectedFlagContainer(input[0]), "click", true, false);
     });
 
     it("only opens the dropdown on that input", function() {
-      expect(getListElement(input)).not.toHaveClass("hide");
-      expect(getListElement(input2)).toHaveClass("hide");
+      expect(getListElement(input[0])).not.toHaveClass("hide");
+      expect(getListElement(input2[0])).toHaveClass("hide");
     });
 
     it("then clicking open dropdown on the second will close the first and open the second", function() {
-      dispatchEvent(getSelectedFlagContainer(input2), "click", true, false);
-      expect(getListElement(input)).toHaveClass("hide");
-      expect(getListElement(input2)).not.toHaveClass("hide");
+      dispatchEvent(getSelectedFlagContainer(input2[0]), "click", true, false);
+      expect(getListElement(input[0])).toHaveClass("hide");
+      expect(getListElement(input2[0])).not.toHaveClass("hide");
     });
 
   });

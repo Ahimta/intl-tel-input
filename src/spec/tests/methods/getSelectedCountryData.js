@@ -21,12 +21,12 @@ describe("getSelectedCountryData: init plugin to test public method getSelectedC
 
   it("change country by number gets the right country data", function() {
     input[0].value = "+44";
-    triggerNativeKeyOnInput(" ", input);
+    triggerNativeKeyOnInput(" ", input[0]);
     expect(input.intlTelInput("getSelectedCountryData").iso2).toEqual("gb");
   });
 
   it("change country by selecting a flag gets the right country data", function() {
-    selectFlag("ch", input);
+    selectFlag("ch", input[0]);
     expect(input.intlTelInput("getSelectedCountryData").iso2).toEqual("ch");
   });
 

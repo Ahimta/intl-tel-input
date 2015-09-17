@@ -21,7 +21,7 @@ describe("setNumber: init (vanilla) plugin to call public method setNumber", fun
   });
 
   it("updates the flag", function() {
-    expect(getSelectedFlagElement(input)).toHaveClass("gb");
+    expect(getSelectedFlagElement(input[0])).toHaveClass("gb");
   });
 
 });
