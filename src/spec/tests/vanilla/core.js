@@ -73,7 +73,7 @@ describe("vanilla:", function() {
 
 
     it("creates a container with the right class", function() {
-      expect(getParentElement(input)).toHaveClass("intl-tel-input");
+      expect(input[0].parentNode).toHaveClass("intl-tel-input");
     });
 
     // preferredCountries defaults to 2 countries
@@ -192,11 +192,11 @@ describe("vanilla:", function() {
     describe("adding to dom", function() {
 
       beforeEach(function() {
-        document.body.appendChild(getParentElement(input));
+        document.body.appendChild(input[0].parentNode);
       });
 
       afterEach(function() {
-        var parentElement = getParentElement(input);
+        var parentElement = input[0].parentNode;
         parentElement.parentNode.removeChild(parentElement);
       });
 

@@ -24,11 +24,11 @@ describe("autoHideDialCode option:", function() {
         nationalMode: false
       });
       // must be in DOM for focus to work
-      document.body.appendChild(getParentElement(input));
+      document.body.appendChild(input[0].parentNode);
     });
 
     afterEach(function() {
-      var parent = getParentElement(input);
+      var parent = input[0].parentNode;
       parent.parentNode.removeChild(parent);
     });
 
@@ -76,12 +76,12 @@ describe("autoHideDialCode option:", function() {
       });
 
       // FIXME: tests still pass when this line is commented out -_-
-      document.body.appendChild(getParentElement(input));
+      document.body.appendChild(input[0].parentNode);
     });
 
     // FIXME: tests still pass when this function call is commented out -_-
     afterEach(function() {
-      var parent = getParentElement(input);
+      var parent = input[0].parentNode;
       parent.parentNode.removeChild(parent);
     });
 

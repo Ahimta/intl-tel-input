@@ -28,59 +28,54 @@ var intlSetup = function(utilsScript) {
   }
 };
 
-var getParentElement = function(i) {
+var getListElement = function(input) {
 
-  return i[0].parentNode;
-};
-
-var getListElement = function(i) {
-
-  var listElements = i[0].parentNode.querySelectorAll(".country-list");
+  var listElements = input[0].parentNode.querySelectorAll(".country-list");
 
   // there should be only one list element, except when the plugin is destroyed, then there will be zero
   if (listElements.length <= 1)  { return listElements[0]; }
   else                           { throw new Error("-_-"); }
 };
 
-var getListLength = function(i) {
+var getListLength = function(input) {
 
-  return getListElement(i).querySelectorAll("li.country").length;
+  return getListElement(input).querySelectorAll("li.country").length;
 };
 
-var getActiveListItem = function(i) {
+var getActiveListItem = function(input) {
 
-  var activeListItems = getListElement(i).querySelectorAll("li.active");
+  var activeListItems = getListElement(input).querySelectorAll("li.active");
 
   // there should be only one active item
   if (activeListItems.length === 1) { return activeListItems; }
   else                              { throw new Error("-_-"); }
 };
 
-var getPreferredCountriesLength = function(i) {
+var getPreferredCountriesLength = function(input) {
 
-  return getListElement(i).querySelectorAll("li.preferred").length;
+  return getListElement(input).querySelectorAll("li.preferred").length;
 };
 
-var getSelectedFlagContainer = function(i) {
+var getSelectedFlagContainer = function(input) {
 
-  var selectedFlagContainers = i[0].parentNode.querySelectorAll(".selected-flag");
+  var selectedFlagContainers = input[0].parentNode.querySelectorAll(".selected-flag");
 
   // there should be only one selected element, except when the plugin is destroyed, then there will be zero
   if (selectedFlagContainers.length <= 1)  { return selectedFlagContainers[0]; }
   else                                     { throw new Error("-_-");           }
 };
 
-var getSelectedFlagElement = function(i) {
+var getSelectedFlagElement = function(input) {
 
-  var selectedFlagElement = getSelectedFlagContainer(i).querySelectorAll(".iti-flag");
+  var selectedFlagElement = getSelectedFlagContainer(input).querySelectorAll(".iti-flag");
 
   // there should be only one selected flag element
   if (selectedFlagElement.length === 1) { return selectedFlagElement[0]; }
   else                                  { throw new Error("-_-");        }
 };
 
-var getFlagsContainerElement = function(i) {
-  var flagContainerElement = i[0].parentNode.querySelectorAll(".flag-dropdown");
+var getFlagsContainerElement = function(input) {
+  var flagContainerElement = input[0].parentNode.querySelectorAll(".flag-dropdown");
 
   // there should be only one flag container element
   if (flagContainerElement.length === 1) { return flagContainerElement[0]; }
@@ -93,10 +88,10 @@ var dispatchEvent = function(element, name, bubbles, cancellable) {
   element.dispatchEvent(event);
 }
 
-var selectFlag = function(countryCode, i) {
-  dispatchEvent(getSelectedFlagContainer(i), "click", true, false);
+var selectFlag = function(countryCode, input) {
+  dispatchEvent(getSelectedFlagContainer(input), "click", true, false);
 
-  var elements = getListElement(i).querySelectorAll("li[data-country-code='" + countryCode + "']");
+  var elements = getListElement(input).querySelectorAll("li[data-country-code='" + countryCode + "']");
 
   // there should be at most 2 list elements for a country code when a country is preferred
   if (elements.length > 2) { throw new Error("-_-"); }
@@ -104,15 +99,15 @@ var selectFlag = function(countryCode, i) {
   dispatchEvent(elements[0], "click", true, false);
 };
 
-var putCursorAtEnd = function(i) {
+var putCursorAtEnd = function(input) {
 
-  var len = i[0].value.length;
-  selectInputChars(len, len, i);
+  var len = input[0].value.length;
+  selectInputChars(len, len, input);
 };
 
-var selectInputChars = function(start, end, i) {
+var selectInputChars = function(start, end, input) {
 
-  i[0].setSelectionRange(start, end);
+  input[0].setSelectionRange(start, end);
 };
 
 var getKeyCode = function(key) {
@@ -136,8 +131,8 @@ var dispatchKeyEvent = function(element, eventName, key) {
 }
 
 // trigger keydown, then keypress, then add the key, then keyup
-var triggerNativeKeyOnInput = function(key, i) {
-  var element = (i && i[0]) || input[0];
+var triggerNativeKeyOnInput = function(key, input) {
+  var element = input[0];
   var e = getNativeKeyEvent("keypress", key, true, true);
 
   element.dispatchEvent(getNativeKeyEvent("keydown", key, true, true));
@@ -158,6 +153,6 @@ var triggerKeyOnBody = function(key) {
   document.dispatchEvent(getNativeKeyEvent("keyup", key, true, true));
 };
 
-var triggerKeyOnFlagsContainerElement = function(i, key) {
-  dispatchKeyEvent(getFlagsContainerElement(i), "keydown", key);
+var triggerKeyOnFlagsContainerElement = function(input, key) {
+  dispatchKeyEvent(getFlagsContainerElement(input), "keydown", key);
 };

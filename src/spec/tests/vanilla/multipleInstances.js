@@ -24,13 +24,13 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
       nationalMode: false
     });
 
-    document.body.appendChild(getParentElement(input));
-    document.body.appendChild(getParentElement(input2));
+    document.body.appendChild(input[0].parentNode);
+    document.body.appendChild(input2[0].parentNode);
   });
 
   afterEach(function() {
-    var parent1 = getParentElement(input);
-    var parent2 = getParentElement(input2);
+    var parent1 = input[0].parentNode;
+    var parent2 = input2[0].parentNode;
 
     parent1.parentNode.removeChild(parent1);
     parent2.parentNode.removeChild(parent2);

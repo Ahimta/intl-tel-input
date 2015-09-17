@@ -25,11 +25,11 @@ describe("nationalMode:", function() {
       });
       // must be in DOM for focus to work
       // FIXME: tests still pass when this line is commented out -_-
-      document.body.appendChild(getParentElement(input));
+      document.body.appendChild(input[0].parentNode);
     });
 
     afterEach(function() {
-      var parent = getParentElement(input);
+      var parent = input[0].parentNode;
       parent.parentNode.removeChild(parent);
     });
 

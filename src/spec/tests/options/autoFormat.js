@@ -9,7 +9,7 @@ describe("autoFormat option:", function() {
   });
 
   afterEach(function() {
-    var parent = getParentElement(input);
+    var parent = input[0].parentNode;
 
     parent.parentNode.removeChild(parent);
 
