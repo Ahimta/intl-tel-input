@@ -190,6 +190,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
     window.addEventListener("load", function() {
         windowLoaded = true;
     });
+    var methods = {};
     function Plugin(element, options) {
         this.element = element;
         this.options = extend(defaults, options);
