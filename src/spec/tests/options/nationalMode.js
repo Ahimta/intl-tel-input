@@ -22,11 +22,13 @@ describe("nationalMode:", function() {
         nationalMode: true
       });
       // must be in DOM for focus to work
-      getParentElement().appendTo($("body"));
+      // FIXME: tests still pass when this line is commented out -_-
+      document.body.appendChild(getParentElement()[0]);
     });
 
     afterEach(function() {
-      getParentElement().remove();
+      var parent = getParentElement()[0];
+      parent.parentNode.removeChild(parent);
     });
 
     it("defaults to no dial code", function() {
@@ -44,9 +46,11 @@ describe("nationalMode:", function() {
     });
 
     it("but typing a dial code does still update the selected country", function() {
-      input.val("+");
+      input[0].value = "+";
+
       triggerNativeKeyOnInput("4");
       triggerNativeKeyOnInput("4");
+
       expect(getSelectedFlagElement()).toHaveClass("gb");
     });
 

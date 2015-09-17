@@ -22,7 +22,7 @@ describe("defaultCountry: init plugin with a default country", function() {
   });
 
   it("sets the active list item correctly", function() {
-    expect(getActiveListItem().attr("data-country-code")).toEqual(defaultCountry);
+    expect(getActiveListItem()[0].getAttribute("data-country-code")).toEqual(defaultCountry);
   });
 
 });

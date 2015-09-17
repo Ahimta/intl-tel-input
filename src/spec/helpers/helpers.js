@@ -30,48 +30,54 @@ var intlSetup = function(utilsScript) {
 
 var getInputVal = function(i) {
   i = i || input;
-  return i.val();
+  return i[0].value;
 };
 
 var getParentElement = function(i) {
   i = i || input;
-  return i.parent();
+  return $(i[0].parentNode);
 };
 
 var getListElement = function(i) {
   i = i || input;
-  return i.parent().find(".country-list");
+  return $(i[0].parentNode.querySelector(".country-list"));
 };
 
 var getListLength = function(i) {
   i = i || input;
-  return getListElement(i).find("li.country").length;
+  return getListElement(i)[0].querySelectorAll("li.country").length;
 };
 
 var getActiveListItem = function(i) {
   i = i || input;
-  return getListElement(i).find("li.active");
+  return $(getListElement(i)[0].querySelector("li.active"));
 };
 
 var getPreferredCountriesLength = function(i) {
   i = i || input;
-  return getListElement(i).find("li.preferred").length;
+  return getListElement(i)[0].querySelectorAll("li.preferred").length;
 };
 
 var getSelectedFlagContainer = function(i) {
   i = i || input;
-  return i.parent().find(".selected-flag");
+  return $(i[0].parentNode.querySelector(".selected-flag"));
 };
 
 var getSelectedFlagElement = function(i) {
   i = i || input;
-  return getSelectedFlagContainer(i).find(".iti-flag");
+  return $(getSelectedFlagContainer(i)[0].querySelector(".iti-flag"));
 };
 
 var getFlagsContainerElement = function(i) {
   i = i || input;
-  return i.parent().find(".flag-dropdown");
+  return $(i[0].parentNode.querySelector(".flag-dropdown"));
 };
+
+var dispatchEvent = function(element, name, bubbles, cancellable) {
+  var event = document.createEvent("HTMLEvents");
+  event.initEvent(name, bubbles, cancellable);
+  element.dispatchEvent(event);
+}
 
 var selectFlag = function(countryCode, i) {
   i = i || input;
@@ -116,6 +122,7 @@ var dispatchKeyEvent = function(element, eventName, key) {
   return element.dispatchEvent(event);
 }
 
+// trigger keydown, then keypress, then add the key, then keyup
 var triggerNativeKeyOnInput = function(key) {
   var element = input[0];
   var e = getNativeKeyEvent("keypress", key, true, true);
@@ -132,20 +139,6 @@ var triggerNativeKeyOnInput = function(key) {
   element.dispatchEvent(getNativeKeyEvent("keyup", key, true, true));
 };
 
-// trigger keydown, then keypress, then add the key, then keyup
-var triggerKeyOnInput = function(key) {
-  input.trigger(getKeyEvent(key, "keydown"));
-  var e = getKeyEvent(key, "keypress");
-  input.trigger(e);
-  // insert char
-  if (!e.isDefaultPrevented()) {
-    var domInput = input[0],
-      val = input.val();
-    input.val(val.substr(0, domInput.selectionStart) + key + val.substring(domInput.selectionEnd, val.length));
-  }
-  input.trigger(getKeyEvent(key, "keyup"));
-};
-
 var triggerKeyOnBody = function(key) {
   document.dispatchEvent(getNativeKeyEvent("keydown", key, true, true));
   document.dispatchEvent(getNativeKeyEvent("keypress", key, true, true));
@@ -155,9 +148,3 @@ var triggerKeyOnBody = function(key) {
 var triggerKeyOnFlagsContainerElement = function(key) {
   dispatchKeyEvent(getFlagsContainerElement()[0], "keydown", key);
 };
-
-var dispatchEvent = function(element, name, bubbles, cancellable) {
-  var event = document.createEvent("HTMLEvents");
-  event.initEvent(name, bubbles, cancellable);
-  element.dispatchEvent(event);
-}

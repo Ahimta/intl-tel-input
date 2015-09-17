@@ -49,7 +49,7 @@ describe("onlyCountries option:", function() {
     });
 
     it("entering +7 defaults to the top priority country (Russia)", function() {
-      input.val("+7");
+      input[0].value = "+7";
       triggerNativeKeyOnInput(" ");
       expect(getSelectedFlagElement()).toHaveClass("ru");
     });
@@ -74,18 +74,24 @@ describe("onlyCountries option:", function() {
         onlyCountries: ['kr'],
         nationalMode: false
       });
-      $("body").append(getParentElement(input)).append(getParentElement(input2));
+
+      document.body.appendChild(getParentElement(input)[0]);
+      document.body.appendChild(getParentElement(input2)[0]);
     });
 
     afterEach(function() {
-      getParentElement(input).remove();
-      getParentElement(input2).remove();
+      var parent1 = getParentElement(input)[0];
+      var parent2 = getParentElement(input2)[0];
+
+      parent1.parentNode.removeChild(parent1);
+      parent2.parentNode.removeChild(parent2);
+
       input2 = null;
     });
 
     it("first instance still works", function() {
-      input.focus();
-      expect(input.val()).toEqual("+81");
+      input[0].focus();
+      expect(input[0].value).toEqual("+81");
     });
 
   });

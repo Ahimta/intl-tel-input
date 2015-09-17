@@ -23,11 +23,12 @@ describe("autoHideDialCode option:", function() {
         nationalMode: false
       });
       // must be in DOM for focus to work
-      getParentElement().appendTo($("body"));
+      document.body.appendChild(getParentElement()[0]);
     });
 
     afterEach(function() {
-      getParentElement().remove();
+      var parent = getParentElement()[0];
+      parent.parentNode.removeChild(parent);
     });
 
     it("does not automatically insert the default dial code", function() {
@@ -35,9 +36,10 @@ describe("autoHideDialCode option:", function() {
     });
 
     it("focusing the input adds the default dial code and blurring it removes it again", function() {
-      input.focus();
+      input[0].focus();
       expect(getInputVal()).toEqual("+1");
-      input.blur();
+
+      input[0].blur();
       expect(getInputVal()).toEqual("");
     });
 
@@ -48,13 +50,14 @@ describe("autoHideDialCode option:", function() {
       var number = "+1 702 987 2345";
 
       beforeEach(function() {
-        input.val(number);
+        input[0].value = number;
       });
 
       it("focusing and blurring the input doesn't change it", function() {
-        input.focus();
+        input[0].focus();
         expect(getInputVal()).toEqual(number);
-        input.blur();
+
+        input[0].blur();
         expect(getInputVal()).toEqual(number);
       });
 
@@ -70,11 +73,15 @@ describe("autoHideDialCode option:", function() {
         autoHideDialCode: false,
         nationalMode: false
       });
-      getParentElement().appendTo($("body"));
+
+      // FIXME: tests still pass when this line is commented out -_-
+      document.body.appendChild(getParentElement()[0]);
     });
 
+    // FIXME: tests still pass when this function call is commented out -_-
     afterEach(function() {
-      getParentElement().remove();
+      var parent = getParentElement();
+      parent.parentNode
     });
 
     it("automatically inserts the default dial code", function() {
@@ -82,9 +89,10 @@ describe("autoHideDialCode option:", function() {
     });
 
     it("focusing and bluring the input dont change the val", function() {
-      input.focus();
+      input[0].focus();
       expect(getInputVal()).toEqual(defaultDialCode);
-      input.blur();
+
+      input[0].blur();
       expect(getInputVal()).toEqual(defaultDialCode);
     });
 
@@ -94,13 +102,14 @@ describe("autoHideDialCode option:", function() {
       var number = "+1 702 987 2345";
 
       beforeEach(function() {
-        input.val(number);
+        input[0].value = number;
       });
 
       it("focusing and blurring the input doesn't change it", function() {
-        input.focus();
+        input[0].focus();
         expect(getInputVal()).toEqual(number);
-        input.blur();
+
+        input[0].blur();
         expect(getInputVal()).toEqual(number);
       });
 
