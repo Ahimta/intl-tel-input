@@ -190,7 +190,55 @@ https://github.com/Bluefieldscom/intl-tel-input.git
     window.addEventListener("load", function() {
         windowLoaded = true;
     });
-    var methods = {};
+    var methods = {
+        getDropdownHeight: function(countryList) {
+            var height;
+            countryList.className = "country-list v-hide";
+            height = countryList.offsetHeight;
+            countryList.className = "country-list hide";
+            return height;
+        },
+        _generateMarkup: function(isMobile, preferredCountries) {
+            var selectedFlagInner = document.createElement("div");
+            var flagsContainer = document.createElement("div");
+            var mainContainer = document.createElement("div");
+            var selectedFlag = document.createElement("div");
+            var arrow = document.createElement("div");
+            var countryList = null;
+            var divider = null;
+            selectedFlagInner.className = "iti-flag";
+            flagsContainer.className = "flag-dropdown";
+            selectedFlag.className = "selected-flag";
+            mainContainer.className = "intl-tel-input";
+            arrow.className = "arrow";
+            // make element focusable and tab naviagable
+            selectedFlag.tabIndex = 0;
+            // country list
+            // mobile is just a native select element
+            // desktop is a proper list containing: preferred countries, then divider, then all countries
+            if (isMobile) {
+                countryList = document.createElement("select");
+                countryList.className = "iti-mobile-select";
+            } else {
+                countryList = document.createElement("ul");
+                countryList.className = "country-list hide";
+                if (preferredCountries) {
+                    divider = document.createElement("li");
+                    divider.className = "divider";
+                }
+            }
+            // must do it this way instead of using a literal syntax, otherwise the min version will have a syntax error
+            var ret = {};
+            ret.selectedFlagInner = selectedFlagInner;
+            ret.flagsContainer = flagsContainer;
+            ret.mainContainer = mainContainer;
+            ret.selectedFlag = selectedFlag;
+            ret.countryList = countryList;
+            ret.divider = divider;
+            ret.arrow = arrow;
+            return ret;
+        }
+    };
     function Plugin(element, options) {
         this.element = element;
         this.options = extend(defaults, options);
@@ -299,21 +347,14 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // generate all of the markup for the plugin: the selected flag overlay, and the dropdown
         _generateMarkup: function() {
+            var markup = methods._generateMarkup(this.isMobile, this.preferredCountries);
             // prevent autocomplete as there's no safe, cross-browser event we can react to, so it can easily put the plugin in an inconsistent state e.g. the wrong flag selected for the autocompleted number, which on submit could mean the wrong number is saved (esp in nationalMode)
             this.element.setAttribute("autocomplete", "off");
-            // Create nodes; mostly order independent and loosely coupled
-            var wrapper = document.createElement("div");
-            wrapper.className = "intl-tel-input";
-            var flagsContainer = document.createElement("div");
-            flagsContainer.className = "flag-dropdown";
-            var selectedFlag = document.createElement("div");
-            selectedFlag.className = "selected-flag";
-            selectedFlag.tabIndex = 0;
-            // make element focusable and tab naviagable
-            var selectedFlagInner = document.createElement("div");
-            selectedFlagInner.className = "iti-flag";
-            var arrow = document.createElement("div");
-            arrow.className = "arrow";
+            var selectedFlagInner = markup.selectedFlagInner;
+            var flagsContainer = markup.flagsContainer;
+            var selectedFlag = markup.selectedFlag;
+            var wrapper = markup.mainContainer;
+            var arrow = markup.arrow;
             this.selectedFlagInner = selectedFlagInner;
             this.selectedFlag = selectedFlag;
             this.flagsContainer = flagsContainer;
@@ -332,29 +373,16 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // country list
             // mobile is just a native select element
             // desktop is a proper list containing: preferred countries, then divider, then all countries
-            if (this.isMobile) {
-                var mobileCountryList = document.createElement("select");
-                mobileCountryList.className = "iti-mobile-select";
-                flagsContainer.appendChild(mobileCountryList);
-                this.countryList = mobileCountryList;
-            } else {
-                var desktopCountryList = document.createElement("ul");
-                desktopCountryList.className = "country-list v-hide";
-                flagsContainer.appendChild(desktopCountryList);
-                this.countryList = desktopCountryList;
-                if (this.preferredCountries.length && !this.isMobile) {
-                    this._appendListItems(this.preferredCountries, "preferred");
-                    var divider = document.createElement("li");
-                    divider.className = "divider";
-                    desktopCountryList.appendChild(divider);
-                }
+            this.countryList = markup.countryList;
+            flagsContainer.appendChild(this.countryList);
+            if (this.preferredCountries.length && !this.isMobile) {
+                this._appendListItems(this.preferredCountries, "preferred");
+                this.countryList.appendChild(markup.divider);
             }
             this._appendListItems(this.countries, "");
             if (!this.isMobile) {
                 // now we can grab the dropdown height, and hide it properly
-                this.dropdownHeight = this.countryList.offsetHeight;
-                removeClass(this.countryList, "v-hide");
-                addClass(this.countryList, "hide");
+                this.dropdownHeight = methods.getDropdownHeight(this.countryList);
                 // this is useful in lots of places
                 this.countryListItems = this.countryList.querySelectorAll(".country");
             }
