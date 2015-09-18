@@ -198,18 +198,18 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             countryList.className = "country-list hide";
             return height;
         },
-        _generateMarkup: function(isMobile, preferredCountries) {
+        generateMarkup: function(isMobile, anyPreferredCountries) {
             var selectedFlagInner = document.createElement("div");
             var flagsContainer = document.createElement("div");
             var mainContainer = document.createElement("div");
             var selectedFlag = document.createElement("div");
             var arrow = document.createElement("div");
-            var countryList = null;
-            var divider = null;
+            var countryList;
+            var divider;
             selectedFlagInner.className = "iti-flag";
             flagsContainer.className = "flag-dropdown";
-            selectedFlag.className = "selected-flag";
             mainContainer.className = "intl-tel-input";
+            selectedFlag.className = "selected-flag";
             arrow.className = "arrow";
             // make element focusable and tab naviagable
             selectedFlag.tabIndex = 0;
@@ -222,7 +222,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             } else {
                 countryList = document.createElement("ul");
                 countryList.className = "country-list hide";
-                if (preferredCountries) {
+                if (anyPreferredCountries) {
                     divider = document.createElement("li");
                     divider.className = "divider";
                 }
@@ -237,6 +237,28 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             ret.divider = divider;
             ret.arrow = arrow;
             return ret;
+        },
+        restructureMarkup: function(element, markup) {
+            var selectedFlagInner = markup.selectedFlagInner;
+            var flagsContainer = markup.flagsContainer;
+            var mainContainer = markup.mainContainer;
+            var selectedFlag = markup.selectedFlag;
+            var countryList = markup.countryList;
+            var arrow = markup.arrow;
+            // This check is necessary since this element may have been created without a parent using Javascript
+            if (element.parentNode) {
+                element.parentNode.insertBefore(mainContainer, element);
+            }
+            mainContainer.appendChild(element);
+            mainContainer.insertBefore(flagsContainer, element);
+            // currently selected flag (displayed to left of input)
+            flagsContainer.appendChild(selectedFlag);
+            selectedFlag.appendChild(selectedFlagInner);
+            selectedFlag.appendChild(arrow);
+            // country list
+            // mobile is just a native select element
+            // desktop is a proper list containing: preferred countries, then divider, then all countries
+            flagsContainer.appendChild(countryList);
         }
     };
     function Plugin(element, options) {
@@ -347,34 +369,15 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // generate all of the markup for the plugin: the selected flag overlay, and the dropdown
         _generateMarkup: function() {
-            var markup = methods._generateMarkup(this.isMobile, this.preferredCountries);
+            var markup = methods.generateMarkup(this.isMobile, this.preferredCountries.length);
+            methods.restructureMarkup(this.element, markup);
             // prevent autocomplete as there's no safe, cross-browser event we can react to, so it can easily put the plugin in an inconsistent state e.g. the wrong flag selected for the autocompleted number, which on submit could mean the wrong number is saved (esp in nationalMode)
             this.element.setAttribute("autocomplete", "off");
-            var selectedFlagInner = markup.selectedFlagInner;
-            var flagsContainer = markup.flagsContainer;
-            var selectedFlag = markup.selectedFlag;
-            var wrapper = markup.mainContainer;
-            var arrow = markup.arrow;
-            this.selectedFlagInner = selectedFlagInner;
-            this.selectedFlag = selectedFlag;
-            this.flagsContainer = flagsContainer;
-            this.arrow = arrow;
-            // Do DOM manipulation last since manipulations are order-dependent and tightly coupled
-            // This check is necessary since this element may have been created without a parent using Javascript
-            if (this.element.parentNode) {
-                this.element.parentNode.insertBefore(wrapper, this.element);
-            }
-            wrapper.appendChild(this.element);
-            wrapper.insertBefore(flagsContainer, this.element);
-            // currently selected flag (displayed to left of input)
-            flagsContainer.appendChild(selectedFlag);
-            selectedFlag.appendChild(selectedFlagInner);
-            selectedFlag.appendChild(arrow);
-            // country list
-            // mobile is just a native select element
-            // desktop is a proper list containing: preferred countries, then divider, then all countries
+            this.selectedFlagInner = markup.selectedFlagInner;
+            this.flagsContainer = markup.flagsContainer;
+            this.selectedFlag = markup.selectedFlag;
             this.countryList = markup.countryList;
-            flagsContainer.appendChild(this.countryList);
+            this.arrow = markup.arrow;
             if (this.preferredCountries.length && !this.isMobile) {
                 this._appendListItems(this.preferredCountries, "preferred");
                 this.countryList.appendChild(markup.divider);
