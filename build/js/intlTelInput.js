@@ -295,7 +295,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // process all the data: onlyCountries, preferredCountries etc
             this._processCountryData();
             // generate the markup
-            this._generateMarkup();
+            this._generateMarkup(this.isMobile, this.element, this.countries, this.preferredCountries);
             // set the initial state of the input value and the selected flag
             this._setInitialState();
             // start all of the event listeners: autoHideDialCode, input keydown, selectedFlag click
@@ -368,22 +368,22 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             }
         },
         // generate all of the markup for the plugin: the selected flag overlay, and the dropdown
-        _generateMarkup: function() {
-            var markup = methods.generateMarkup(this.isMobile, this.preferredCountries.length);
-            methods.restructureMarkup(this.element, markup);
+        _generateMarkup: function(isMobile, element, countries, preferredCountries) {
+            var markup = methods.generateMarkup(isMobile, preferredCountries.length);
+            methods.restructureMarkup(element, markup);
             // prevent autocomplete as there's no safe, cross-browser event we can react to, so it can easily put the plugin in an inconsistent state e.g. the wrong flag selected for the autocompleted number, which on submit could mean the wrong number is saved (esp in nationalMode)
-            this.element.setAttribute("autocomplete", "off");
+            element.setAttribute("autocomplete", "off");
             this.selectedFlagInner = markup.selectedFlagInner;
             this.flagsContainer = markup.flagsContainer;
             this.selectedFlag = markup.selectedFlag;
             this.countryList = markup.countryList;
             this.arrow = markup.arrow;
-            if (this.preferredCountries.length && !this.isMobile) {
-                this._appendListItems(this.preferredCountries, "preferred");
+            if (preferredCountries.length && !isMobile) {
+                this._appendListItems(preferredCountries, "preferred");
                 this.countryList.appendChild(markup.divider);
             }
-            this._appendListItems(this.countries, "");
-            if (!this.isMobile) {
+            this._appendListItems(countries, "");
+            if (!isMobile) {
                 // now we can grab the dropdown height, and hide it properly
                 this.dropdownHeight = methods.getDropdownHeight(this.countryList);
                 // this is useful in lots of places
