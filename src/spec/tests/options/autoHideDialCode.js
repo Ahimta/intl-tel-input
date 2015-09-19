@@ -3,45 +3,47 @@
 describe("autoHideDialCode option:", function() {
 
   var defaultDialCode = "+1";
+  var element;
   var input;
 
   beforeEach(function() {
     intlSetup();
-    input = $("<input>");
+    element = document.createElement("input");
   });
 
   afterEach(function() {
-    input.intlTelInput("destroy");
+    input.destroy();
     input = null;
+  });
+
+  afterEach(function() {
+    var parent = input.inputElement.parentNode;
+    parent.parentNode.removeChild(parent);
   });
 
 
   describe("init plugin with autoHideDialCode = true and nationalMode = false", function() {
 
     beforeEach(function() {
-      input.intlTelInput({
+      input = new IntlTelInput(element, {
         autoHideDialCode: true,
         nationalMode: false
       });
-      // must be in DOM for focus to work
-      document.body.appendChild(input[0].parentNode);
-    });
 
-    afterEach(function() {
-      var parent = input[0].parentNode;
-      parent.parentNode.removeChild(parent);
+      // must be in DOM for focus to work
+      document.body.appendChild(input.inputElement.parentNode);
     });
 
     it("does not automatically insert the default dial code", function() {
-      expect(input[0].value).toEqual("");
+      expect(input.inputElement.value).toEqual("");
     });
 
     it("focusing the input adds the default dial code and blurring it removes it again", function() {
-      input[0].focus();
-      expect(input[0].value).toEqual("+1");
+      input.inputElement.focus();
+      expect(input.inputElement.value).toEqual("+1");
 
-      input[0].blur();
-      expect(input[0].value).toEqual("");
+      input.inputElement.blur();
+      expect(input.inputElement.value).toEqual("");
     });
 
 
@@ -51,15 +53,15 @@ describe("autoHideDialCode option:", function() {
       var number = "+1 702 987 2345";
 
       beforeEach(function() {
-        input[0].value = number;
+        input.inputElement.value = number;
       });
 
       it("focusing and blurring the input doesn't change it", function() {
-        input[0].focus();
-        expect(input[0].value).toEqual(number);
+        input.inputElement.focus();
+        expect(input.inputElement.value).toEqual(number);
 
-        input[0].blur();
-        expect(input[0].value).toEqual(number);
+        input.inputElement.blur();
+        expect(input.inputElement.value).toEqual(number);
       });
 
     });
@@ -70,31 +72,25 @@ describe("autoHideDialCode option:", function() {
   describe("init plugin with autoHideDialCode = false and nationalMode = false", function() {
 
     beforeEach(function() {
-      input.intlTelInput({
+      input = new IntlTelInput(element, {
         autoHideDialCode: false,
         nationalMode: false
       });
 
       // FIXME: tests still pass when this line is commented out -_-
-      document.body.appendChild(input[0].parentNode);
-    });
-
-    // FIXME: tests still pass when this function call is commented out -_-
-    afterEach(function() {
-      var parent = input[0].parentNode;
-      parent.parentNode.removeChild(parent);
+      document.body.appendChild(input.inputElement.parentNode);
     });
 
     it("automatically inserts the default dial code", function() {
-      expect(input[0].value).toEqual(defaultDialCode);
+      expect(input.inputElement.value).toEqual(defaultDialCode);
     });
 
     it("focusing and bluring the input dont change the val", function() {
-      input[0].focus();
-      expect(input[0].value).toEqual(defaultDialCode);
+      input.inputElement.focus();
+      expect(input.inputElement.value).toEqual(defaultDialCode);
 
-      input[0].blur();
-      expect(input[0].value).toEqual(defaultDialCode);
+      input.inputElement.blur();
+      expect(input.inputElement.value).toEqual(defaultDialCode);
     });
 
 
@@ -103,15 +99,15 @@ describe("autoHideDialCode option:", function() {
       var number = "+1 702 987 2345";
 
       beforeEach(function() {
-        input[0].value = number;
+        input.inputElement.value = number;
       });
 
       it("focusing and blurring the input doesn't change it", function() {
-        input[0].focus();
-        expect(input[0].value).toEqual(number);
+        input.inputElement.focus();
+        expect(input.inputElement.value).toEqual(number);
 
-        input[0].blur();
-        expect(input[0].value).toEqual(number);
+        input.inputElement.blur();
+        expect(input.inputElement.value).toEqual(number);
       });
 
     });
