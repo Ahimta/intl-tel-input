@@ -6,11 +6,10 @@ describe("preferredCountries option:", function() {
 
   beforeEach(function() {
     intlSetup();
-    input = $("<input>");
   });
 
   afterEach(function() {
-    input.intlTelInput("destroy");
+    input.destroy();
     input = null;
   });
 
@@ -19,18 +18,18 @@ describe("preferredCountries option:", function() {
   describe("init plugin with empty preferredCountries", function() {
 
     beforeEach(function() {
-      input.intlTelInput({
+      input = new IntlTelInput(document.createElement("input"), {
         preferredCountries: []
       });
     });
 
     it("defaults to the first country in the alphabet", function() {
       // Afghanistan
-      expect(getSelectedFlagElement(input[0])).toHaveClass("af");
+      expect(getSelectedFlagElement(input.inputElement)).toHaveClass("af");
     });
 
     it("has the right number of list items", function() {
-      expect(getListLength(input[0])).toEqual(totalCountries);
+      expect(getListLength(input.inputElement)).toEqual(totalCountries);
     });
 
   });
@@ -44,7 +43,7 @@ describe("preferredCountries option:", function() {
     beforeEach(function() {
       // United Kingdom
       preferredCountries = ['gb'];
-      input.intlTelInput({
+      input = new IntlTelInput(document.createElement("input"), {
         preferredCountries: preferredCountries
       });
     });
@@ -54,11 +53,11 @@ describe("preferredCountries option:", function() {
     });
 
     it("defaults to the first preferredCountries", function() {
-      expect(getSelectedFlagElement(input[0])).toHaveClass(preferredCountries[0]);
+      expect(getSelectedFlagElement(input.inputElement)).toHaveClass(preferredCountries[0]);
     });
 
     it("has the right number of list items", function() {
-      expect(getListLength(input[0])).toEqual(totalCountries + preferredCountries.length);
+      expect(getListLength(input.inputElement)).toEqual(totalCountries + preferredCountries.length);
     });
 
   });

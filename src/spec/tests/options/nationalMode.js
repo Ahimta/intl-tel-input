@@ -3,14 +3,19 @@
 
 describe("nationalMode:", function() {
 
+  var element;
   var input;
 
   beforeEach(function() {
     intlSetup();
   });
 
+  beforeEach(function() {
+    element = document.createElement("input");
+  });
+
   afterEach(function() {
-    input.intlTelInput("destroy");
+    input.destroy();
     input = null;
   });
 
@@ -19,41 +24,41 @@ describe("nationalMode:", function() {
   describe("init plugin with no value", function() {
 
     beforeEach(function() {
-      input = $("<input>");
-      input.intlTelInput({
+      input = new IntlTelInput(element, {
         nationalMode: true
       });
+
       // must be in DOM for focus to work
       // FIXME: tests still pass when this line is commented out -_-
-      document.body.appendChild(input[0].parentNode);
+      document.body.appendChild(input.inputElement.parentNode);
     });
 
     afterEach(function() {
-      var parent = input[0].parentNode;
+      var parent = input.inputElement.parentNode;
       parent.parentNode.removeChild(parent);
     });
 
     it("defaults to no dial code", function() {
-      expect(input[0].value).toEqual("");
+      expect(input.inputElement.value).toEqual("");
     });
 
     it("focusing the input does not insert the dial code", function() {
-      input.focus();
-      expect(input[0].value).toEqual("");
+      input.inputElement.focus();
+      expect(input.inputElement.value).toEqual("");
     });
 
     it("selecting another country does not insert the dial code", function() {
-      selectFlag("gb", input[0]);
-      expect(input[0].value).toEqual("");
+      selectFlag("gb", input.inputElement);
+      expect(input.inputElement.value).toEqual("");
     });
 
     it("but typing a dial code does still update the selected country", function() {
-      input[0].value = "+";
+      input.inputElement.value = "+";
 
-      triggerNativeKeyOnInput("4", input[0]);
-      triggerNativeKeyOnInput("4", input[0]);
+      triggerNativeKeyOnInput("4", input.inputElement);
+      triggerNativeKeyOnInput("4", input.inputElement);
 
-      expect(getSelectedFlagElement(input[0])).toHaveClass("gb");
+      expect(getSelectedFlagElement(input.inputElement)).toHaveClass("gb");
     });
 
   });
@@ -65,22 +70,24 @@ describe("nationalMode:", function() {
     var nationalNum = "702 418 1234";
 
     beforeEach(function() {
-      input = $("<input value='" + nationalNum + "'>");
-      input.intlTelInput({
+      element.value = nationalNum;
+
+      input =  new IntlTelInput(element, {
         nationalMode: true
       });
-      input.intlTelInput("selectCountry", "us");
+
+      input.selectCountry("us");
     });
 
     it("displays the number and has US flag selected", function() {
-      expect(input[0].value).toEqual(nationalNum);
-      expect(getSelectedFlagElement(input[0])).toHaveClass("us");
+      expect(input.inputElement.value).toEqual(nationalNum);
+      expect(getSelectedFlagElement(input.inputElement)).toHaveClass("us");
     });
 
     it("changing to canadian area code updates flag", function() {
-      input[0].value = "204 555 555";
-      triggerNativeKeyOnInput("5", input[0]); // trigger update flag
-      expect(getSelectedFlagElement(input[0])).toHaveClass("ca");
+      input.inputElement.value = "204 555 555";
+      triggerNativeKeyOnInput("5", input.inputElement); // trigger update flag
+      expect(getSelectedFlagElement(input.inputElement)).toHaveClass("ca");
     });
 
   });
@@ -92,21 +99,22 @@ describe("nationalMode:", function() {
     var intlNumber = "+44 7733 123456";
 
     beforeEach(function() {
-      input = $("<input value='" + intlNumber + "'>");
-      input.intlTelInput({
+      element.value = intlNumber;
+
+      input = new IntlTelInput(element, {
         nationalMode: true
       });
     });
 
     it("displays the number and selects the right flag", function() {
-      expect(input[0].value).toEqual(intlNumber);
-      expect(getSelectedFlagElement(input[0])).toHaveClass("gb");
+      expect(input.inputElement.value).toEqual(intlNumber);
+      expect(getSelectedFlagElement(input.inputElement)).toHaveClass("gb");
     });
 
     it("changing to another intl number updates the flag", function() {
-      input[0].value = "+34 5555555";
-      triggerNativeKeyOnInput("5", input[0]); // trigger update flag
-      expect(getSelectedFlagElement(input[0])).toHaveClass("es");
+      input.inputElement.value = "+34 5555555";
+      triggerNativeKeyOnInput("5", input.inputElement); // trigger update flag
+      expect(getSelectedFlagElement(input.inputElement)).toHaveClass("es");
     });
 
   });
