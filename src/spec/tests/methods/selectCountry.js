@@ -7,22 +7,21 @@ describe("selectCountry: init plugin and calling public method selectCountry()",
 
   beforeEach(function() {
     intlSetup();
-    input = $("<input>");
-    input.intlTelInput();
-    input.intlTelInput("selectCountry", countryCode);
+    input = new IntlTelInput(document.createElement("input"));
+    input.selectCountry(countryCode);
   });
 
   afterEach(function() {
-    input.intlTelInput("destroy");
+    input.destroy();
     input = null;
   });
 
   it("updates the selected flag", function() {
-    expect(getSelectedFlagElement(input[0])).toHaveClass(countryCode);
+    expect(getSelectedFlagElement(input.inputElement)).toHaveClass(countryCode);
   });
 
   it("does not insert the dial code", function() {
-    expect(input[0].value).toEqual("");
+    expect(input.inputElement.value).toEqual("");
   });
 
 });

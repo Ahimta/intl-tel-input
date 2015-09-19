@@ -261,6 +261,31 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             flagsContainer.appendChild(countryList);
         }
     };
+    function IntlTelInput(element, options) {
+        var instance = this.instance = new Plugin(element, options || {});
+        this.inputElement = element;
+        instance._init();
+    }
+    // get the country data object
+    IntlTelInput.getCountryData = function() {
+        return allCountries;
+    };
+    IntlTelInput.prototype.getSelectedCountryData = function() {
+        return this.instance.getSelectedCountryData();
+    };
+    IntlTelInput.prototype.isValidNumber = function() {
+        return this.instance.isValidNumber();
+    };
+    IntlTelInput.prototype.selectCountry = function(countryCode) {
+        return this.instance.selectCountry(countryCode);
+    };
+    IntlTelInput.prototype.destroy = function() {
+        this.instance.destroy();
+    };
+    IntlTelInput.prototype.setNumber = function(number, format, addSuffix, preventConversion, isAllowedKey) {
+        return this.instance.setNumber(number, format, addSuffix, preventConversion, isAllowedKey);
+    };
+    window.IntlTelInput = IntlTelInput;
     function Plugin(element, options) {
         this.element = element;
         this.options = extend(defaults, options);
@@ -1095,7 +1120,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _closeDropdown: function() {
             addClass(this.countryList, "hide");
             // update the arrow
-            // FIXED: arrow is a child of selectedFlag no selectedFlagInner
+            // FIXED: arrow is a child of selectedFlag not selectedFlagInner
             // FIXME: tests still pass when this line is commented out -_-
             removeClass(this.arrow, "up");
             // unbind key events
