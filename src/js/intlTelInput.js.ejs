@@ -706,7 +706,7 @@ Plugin.prototype = {
           var isAllowedKey = ((e.which >= keys.ZERO && e.which <= keys.NINE) || e.which == keys.PLUS),
             input = that.element,
             noSelection = (that.isGoodBrowser && input.selectionStart == input.selectionEnd),
-            max = that.element.getAttribute("maxlength"),
+            max = (that.element.maxlength || that.element.getAttribute("maxlength")),
             val = that.element.value,
             // assumes that if max exists, it is >0
             isBelowMax = (max) ? (val.length < max) : true;

@@ -597,7 +597,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         e.preventDefault();
                         // allowed keys are just numeric keys and plus
                         // we must allow plus for the case where the user does select-all and then hits plus to start typing a new number. we could refine this logic to first check that the selection contains a plus, but that wont work in old browsers, and I think it's overkill anyway
-                        var isAllowedKey = e.which >= keys.ZERO && e.which <= keys.NINE || e.which == keys.PLUS, input = that.element, noSelection = that.isGoodBrowser && input.selectionStart == input.selectionEnd, max = that.element.getAttribute("maxlength"), val = that.element.value, // assumes that if max exists, it is >0
+                        var isAllowedKey = e.which >= keys.ZERO && e.which <= keys.NINE || e.which == keys.PLUS, input = that.element, noSelection = that.isGoodBrowser && input.selectionStart == input.selectionEnd, max = that.element.maxlength || that.element.getAttribute("maxlength"), val = that.element.value, // assumes that if max exists, it is >0
                         isBelowMax = max ? val.length < max : true;
                         // first: ensure we dont go over maxlength. we must do this here to prevent adding digits in the middle of the number
                         // still reformat even if not an allowed key as they could by typing a formatting char, but ignore if there's a selection as doesn't make sense to replace selection with illegal char and then immediately remove it
