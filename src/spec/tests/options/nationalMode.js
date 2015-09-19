@@ -78,7 +78,7 @@ describe("nationalMode:", function() {
     });
 
     it("changing to canadian area code updates flag", function() {
-      input.val("204 555 555");
+      input[0].value = "204 555 555";
       triggerNativeKeyOnInput("5", input[0]); // trigger update flag
       expect(getSelectedFlagElement(input[0])).toHaveClass("ca");
     });
@@ -104,7 +104,7 @@ describe("nationalMode:", function() {
     });
 
     it("changing to another intl number updates the flag", function() {
-      input.val("+34 5555555");
+      input[0].value = "+34 5555555";
       triggerNativeKeyOnInput("5", input[0]); // trigger update flag
       expect(getSelectedFlagElement(input[0])).toHaveClass("es");
     });
