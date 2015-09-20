@@ -574,21 +574,21 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // check for cookie
             var cookieAutoCountry = storage.get("itiAutoCountry");
             if (cookieAutoCountry) {
-                $.fn[pluginName].autoCountry = cookieAutoCountry;
+                IntlTelInput.autoCountry = cookieAutoCountry;
             }
             // 3 options:
             // 1) already loaded (we're done)
             // 2) not already started loading (start)
             // 3) already started loading (do nothing - just wait for loading callback to fire)
-            if ($.fn[pluginName].autoCountry) {
+            if (IntlTelInput.autoCountry) {
                 this.autoCountryLoaded();
             } else if (!$.fn[pluginName].startedLoadingAutoCountry) {
                 // don't do this twice!
                 $.fn[pluginName].startedLoadingAutoCountry = true;
                 if (typeof this.options.geoIpLookup === "function") {
                     this.options.geoIpLookup(function(countryCode) {
-                        $.fn[pluginName].autoCountry = countryCode.toLowerCase();
-                        storage.set("itiAutoCountry", $.fn[pluginName].autoCountry, {
+                        IntlTelInput.autoCountry = countryCode.toLowerCase();
+                        storage.set("itiAutoCountry", IntlTelInput.autoCountry, {
                             path: "/"
                         });
                         // tell all instances the auto country is ready
@@ -1232,7 +1232,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         // this is called when the geoip call returns
         autoCountryLoaded: function() {
             if (this.options.defaultCountry == "auto") {
-                this.options.defaultCountry = $.fn[pluginName].autoCountry;
+                this.options.defaultCountry = IntlTelInput.autoCountry;
                 this._setInitialState();
                 this.autoCountryDeferred.resolve();
             }
