@@ -2,8 +2,8 @@
 
 describe("multiple instances: init vanilla plugin (with nationalMode=false) to test multiple instances", function() {
 
-  var input,
-    input2,
+  var intlTelInput1,
+    intlTelInput2,
     afghanistanCountryCode = "af",
     albaniaCountryCode = "al",
     chinaCountryCode = "cn",
@@ -11,59 +11,60 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
 
   beforeEach(function() {
     intlSetup();
-    input = $("<input>");
-    input2 = $("<input>");
+
     // japan and china
-    input.intlTelInput({
+    intlTelInput1 = new IntlTelInput(document.createElement("input"), {
       onlyCountries: [chinaCountryCode, afghanistanCountryCode],
       nationalMode: false
     });
+
     // korea, china and russia
-    input2.intlTelInput({
+    intlTelInput2 = new IntlTelInput(document.createElement("input"), {
       onlyCountries: ['kr', chinaCountryCode, 'ru', albaniaCountryCode],
       nationalMode: false
     });
 
-    document.body.appendChild(input[0].parentNode);
-    document.body.appendChild(input2[0].parentNode);
+    document.body.appendChild(intlTelInput1.inputElement.parentNode);
+    document.body.appendChild(intlTelInput2.inputElement.parentNode);
   });
 
   afterEach(function() {
-    var parent1 = input[0].parentNode;
-    var parent2 = input2[0].parentNode;
+    var parent1 = intlTelInput1.inputElement.parentNode;
+    var parent2 = intlTelInput2.inputElement.parentNode;
 
     parent1.parentNode.removeChild(parent1);
     parent2.parentNode.removeChild(parent2);
 
-    input.intlTelInput("destroy");
-    input2.intlTelInput("destroy");
+    intlTelInput1.destroy();
+    intlTelInput2.destroy();
 
-    input = input2 = null;
+    intlTelInput1 = intlTelInput2 = null;
   });
 
   it("instances have different country lists", function() {
-    expect(getListLength(input[0])).toEqual(2);
-    expect(getListLength(input2[0])).toEqual(4);
+    expect(getListLength(intlTelInput1.inputElement)).toEqual(2);
+    expect(getListLength(intlTelInput2.inputElement)).toEqual(4);
   });
 
   it("instances have different default countries selected", function() {
-    expect(getSelectedFlagElement(input[0])).toHaveClass(afghanistanCountryCode);
-    expect(getSelectedFlagElement(input2[0])).toHaveClass(albaniaCountryCode);
+    expect(getSelectedFlagElement(intlTelInput1.inputElement)).toHaveClass(afghanistanCountryCode);
+    expect(getSelectedFlagElement(intlTelInput2.inputElement)).toHaveClass(albaniaCountryCode);
   });
 
   it("selecting an item from the first input dropdown only updates the flag on that input", function() {
-    selectFlag(chinaCountryCode, input[0]);
-    expect(input[0].value).toEqual(chinaDialCode);
-    expect(input2[0].value).toEqual("");
+    selectFlag(chinaCountryCode, intlTelInput1.inputElement);
+
+    expect(intlTelInput1.inputElement.value).toEqual(chinaDialCode);
+    expect(intlTelInput2.inputElement.value).toEqual("");
   });
 
   it("updating the number on the first input only updates the flag on that input", function() {
-    input[0].value = chinaDialCode + " 123456";
+    intlTelInput1.inputElement.value = chinaDialCode + " 123456";
 
-    triggerNativeKeyOnInput(" ", input[0]);
+    triggerNativeKeyOnInput(" ", intlTelInput1.inputElement);
 
-    expect(getSelectedFlagElement(input[0])).toHaveClass(chinaCountryCode);
-    expect(getSelectedFlagElement(input2[0])).toHaveClass(albaniaCountryCode);
+    expect(getSelectedFlagElement(intlTelInput1.inputElement)).toHaveClass(chinaCountryCode);
+    expect(getSelectedFlagElement(intlTelInput2.inputElement)).toHaveClass(albaniaCountryCode);
   });
 
 
@@ -71,18 +72,19 @@ describe("multiple instances: init vanilla plugin (with nationalMode=false) to t
   describe("clicking open dropdown on the first input", function() {
 
     beforeEach(function() {
-      dispatchEvent(getSelectedFlagContainer(input[0]), "click", true, false);
+      dispatchEvent(getSelectedFlagContainer(intlTelInput1.inputElement), "click", true, false);
     });
 
     it("only opens the dropdown on that input", function() {
-      expect(getListElement(input[0])).not.toHaveClass("hide");
-      expect(getListElement(input2[0])).toHaveClass("hide");
+      expect(getListElement(intlTelInput1.inputElement)).not.toHaveClass("hide");
+      expect(getListElement(intlTelInput2.inputElement)).toHaveClass("hide");
     });
 
     it("then clicking open dropdown on the second will close the first and open the second", function() {
-      dispatchEvent(getSelectedFlagContainer(input2[0]), "click", true, false);
-      expect(getListElement(input[0])).toHaveClass("hide");
-      expect(getListElement(input2[0])).not.toHaveClass("hide");
+      dispatchEvent(getSelectedFlagContainer(intlTelInput2.inputElement), "click", true, false);
+
+      expect(getListElement(intlTelInput1.inputElement)).toHaveClass("hide");
+      expect(getListElement(intlTelInput2.inputElement)).not.toHaveClass("hide");
     });
 
   });
