@@ -43,7 +43,8 @@ var pluginName = "intlTelInput",
     CMD1: 91, // Chrome
     CMD2: 224 // FF
   },
-  windowLoaded = false;
+  windowLoaded = false,
+  JQUERY_AVAILABLE = typeof ($) !== "undefined";
 
 function extend(object1, object2) {
 
@@ -289,6 +290,8 @@ function IntlTelInput(element, options) {
   instance._init();
 }
 
+IntlTelInput.version = "<%= version %>";
+
 // get the country data object
 IntlTelInput.getCountryData = function() { return allCountries; };
 
@@ -309,7 +312,9 @@ IntlTelInput.prototype.utilsLoaded = function() { return this.instance.utilsLoad
 IntlTelInput.prototype.getValidationError = function() { return this.instance.getValidationError(); };
 
 IntlTelInput.prototype.autoCountryLoaded = function() { return this.instance.autoCountryLoaded(); };
+
 IntlTelInput.prototype.getExtension = function() { return this.instance.getExtension(); };
+
 IntlTelInput.prototype.destroy = function() { return this.instance.destroy(); };
 
 IntlTelInput.prototype.setNumber = function(number, format, addSuffix, preventConversion, isAllowedKey) {
@@ -672,9 +677,9 @@ Plugin.prototype = {
     // 3) already started loading (do nothing - just wait for loading callback to fire)
     if (IntlTelInput.autoCountry) {
       this.autoCountryLoaded();
-    } else if (!$.fn[pluginName].startedLoadingAutoCountry) {
+    } else if (!IntlTelInput.startedLoadingAutoCountry) {
       // don't do this twice!
-      $.fn[pluginName].startedLoadingAutoCountry = true;
+      IntlTelInput.startedLoadingAutoCountry = true;
 
       if (typeof this.options.geoIpLookup === 'function') {
         this.options.geoIpLookup(function(countryCode) {
@@ -1633,9 +1638,9 @@ Plugin.prototype = {
     var that = this;
 
     var utilsScript = path || this.options.utilsScript;
-    if (!$.fn[pluginName].loadedUtilsScript && utilsScript) {
+    if (!IntlTelInput.loadedUtilsScript && utilsScript) {
       // don't do this twice! (dont just check if the global intlTelInputUtils exists as if init plugin multiple times in quick succession, it may not have finished loading yet)
-      $.fn[pluginName].loadedUtilsScript = true;
+      IntlTelInput.loadedUtilsScript = true;
 
       // dont use $.getScript as it prevents caching
       $.ajax({
@@ -1751,8 +1756,6 @@ $.fn[pluginName] = function(options) {
  ********************/
 
 // get the country data object
-$.fn[pluginName].getCountryData = function() {
-  return allCountries;
-};
+$.fn[pluginName].getCountryData = IntlTelInput.getCountryData;
 
-$.fn[pluginName].version = "<%= version %>";
+$.fn[pluginName].version = IntlTelInput.version;

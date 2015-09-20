@@ -56,7 +56,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         CMD1: 91,
         // Chrome
         CMD2: 224
-    }, windowLoaded = false;
+    }, windowLoaded = false, JQUERY_AVAILABLE = typeof $ !== "undefined";
     function extend(object1, object2) {
         var newObject = {};
         var oldObjects = [ object1, object2 ];
@@ -266,6 +266,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         this.inputElement = element;
         instance._init();
     }
+    IntlTelInput.version = "6.0.8";
     // get the country data object
     IntlTelInput.getCountryData = function() {
         return allCountries;
@@ -582,9 +583,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // 3) already started loading (do nothing - just wait for loading callback to fire)
             if (IntlTelInput.autoCountry) {
                 this.autoCountryLoaded();
-            } else if (!$.fn[pluginName].startedLoadingAutoCountry) {
+            } else if (!IntlTelInput.startedLoadingAutoCountry) {
                 // don't do this twice!
-                $.fn[pluginName].startedLoadingAutoCountry = true;
+                IntlTelInput.startedLoadingAutoCountry = true;
                 if (typeof this.options.geoIpLookup === "function") {
                     this.options.geoIpLookup(function(countryCode) {
                         IntlTelInput.autoCountry = countryCode.toLowerCase();
@@ -1328,9 +1329,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         loadUtils: function(path) {
             var that = this;
             var utilsScript = path || this.options.utilsScript;
-            if (!$.fn[pluginName].loadedUtilsScript && utilsScript) {
+            if (!IntlTelInput.loadedUtilsScript && utilsScript) {
                 // don't do this twice! (dont just check if the global intlTelInputUtils exists as if init plugin multiple times in quick succession, it may not have finished loading yet)
-                $.fn[pluginName].loadedUtilsScript = true;
+                IntlTelInput.loadedUtilsScript = true;
                 // dont use $.getScript as it prevents caching
                 $.ajax({
                     url: utilsScript,
@@ -1425,10 +1426,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
  *  STATIC METHODS
  ********************/
     // get the country data object
-    $.fn[pluginName].getCountryData = function() {
-        return allCountries;
-    };
-    $.fn[pluginName].version = "6.0.8";
+    $.fn[pluginName].getCountryData = IntlTelInput.getCountryData;
+    $.fn[pluginName].version = IntlTelInput.version;
     // Tell JSHint to ignore this warning: "character may get silently deleted by one or more browsers"
     // jshint -W100
     // Array of country objects for the flag dropdown.
