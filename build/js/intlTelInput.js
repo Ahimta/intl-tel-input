@@ -279,8 +279,29 @@ https://github.com/Bluefieldscom/intl-tel-input.git
     IntlTelInput.prototype.selectCountry = function(countryCode) {
         return this.instance.selectCountry(countryCode);
     };
+    IntlTelInput.prototype.getNumber = function(type) {
+        return this.instance.getNumber(type);
+    };
+    IntlTelInput.prototype.loadUtils = function(path) {
+        return this.instance.loadUtils(path);
+    };
+    IntlTelInput.prototype.getNumberType = function() {
+        return this.instance.getNumberType();
+    };
+    IntlTelInput.prototype.utilsLoaded = function() {
+        return this.instance.utilsLoaded();
+    };
+    IntlTelInput.prototype.getValidationError = function() {
+        return this.instance.getValidationError();
+    };
+    IntlTelInput.prototype.autoCountryLoaded = function() {
+        return this.instance.autoCountryLoaded();
+    };
+    IntlTelInput.prototype.getExtension = function() {
+        return this.instance.getExtension();
+    };
     IntlTelInput.prototype.destroy = function() {
-        this.instance.destroy();
+        return this.instance.destroy();
     };
     IntlTelInput.prototype.setNumber = function(number, format, addSuffix, preventConversion, isAllowedKey) {
         return this.instance.setNumber(number, format, addSuffix, preventConversion, isAllowedKey);
