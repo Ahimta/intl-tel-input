@@ -56,7 +56,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         CMD1: 91,
         // Chrome
         CMD2: 224
-    }, windowLoaded = false, JQUERY_AVAILABLE = typeof $ !== "undefined";
+    }, windowLoaded = false;
     function extend(object1, object2) {
         var newObject = {};
         var oldObjects = [ object1, object2 ];
