@@ -560,7 +560,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // open dropdown list if currently focused
             this._eventListeners.onFlagKeydown = function(e) {
                 var isDropdownHidden = hasClass(that.countryList, "hide");
-                if (isDropdownHidden && (e.which == keys.UP || e.which == keys.DOWN || e.which == keys.SPACE || e.which == keys.ENTER)) {
+                var which = whichKey(e);
+                if (isDropdownHidden && (which == keys.UP || which == keys.DOWN || which == keys.SPACE || which == keys.ENTER)) {
                     // prevent form from being submitted if "ENTER" was pressed
                     e.preventDefault();
                     // prevent event from being handled again by document
@@ -568,7 +569,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     that._showDropdown();
                 }
                 // allow navigation from dropdown to input on TAB
-                if (e.which == keys.TAB) {
+                if (which == keys.TAB) {
                     that._closeDropdown();
                 }
             };
@@ -645,16 +646,17 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     // Update: also ignore if this is a metaKey e.g. FF and Safari trigger keypress on the v of Ctrl+v
                     // Update: also ignore if ctrlKey (FF on Windows/Ubuntu)
                     // Update: also check that we have utils before we do any autoFormat stuff
-                    if (e.which >= keys.SPACE && !e.ctrlKey && !e.metaKey && window.intlTelInputUtils && !that.element.readonly) {
+                    var which = whichKey(e);
+                    if (which >= keys.SPACE && !e.ctrlKey && !e.metaKey && window.intlTelInputUtils && !that.element.readonly) {
                         e.preventDefault();
                         // allowed keys are just numeric keys and plus
                         // we must allow plus for the case where the user does select-all and then hits plus to start typing a new number. we could refine this logic to first check that the selection contains a plus, but that wont work in old browsers, and I think it's overkill anyway
-                        var isAllowedKey = e.which >= keys.ZERO && e.which <= keys.NINE || e.which == keys.PLUS, input = that.element, noSelection = that.isGoodBrowser && input.selectionStart == input.selectionEnd, max = that.element.maxlength || that.element.getAttribute("maxlength"), val = that.element.value, // assumes that if max exists, it is >0
+                        var isAllowedKey = which >= keys.ZERO && which <= keys.NINE || which == keys.PLUS, input = that.element, noSelection = that.isGoodBrowser && input.selectionStart == input.selectionEnd, max = that.element.maxlength || that.element.getAttribute("maxlength"), val = that.element.value, // assumes that if max exists, it is >0
                         isBelowMax = max ? val.length < max : true;
                         // first: ensure we dont go over maxlength. we must do this here to prevent adding digits in the middle of the number
                         // still reformat even if not an allowed key as they could by typing a formatting char, but ignore if there's a selection as doesn't make sense to replace selection with illegal char and then immediately remove it
                         if (isBelowMax && (isAllowedKey || noSelection)) {
-                            var newChar = isAllowedKey ? String.fromCharCode(e.which) : null;
+                            var newChar = isAllowedKey ? String.fromCharCode(which) : null;
                             that._handleInputKey(newChar, true, isAllowedKey);
                             // if something has changed, trigger the input event (which was otherwised squashed by the preventDefault)
                             if (val != that.element.value) {
@@ -691,13 +693,14 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this._eventListeners.onElementKeyup = function(e) {
                 // the "enter" key event from selecting a dropdown item is triggered here on the input, because the document.keydown handler that initially handles that event triggers a focus on the input, and so the keyup for that same key event gets triggered here. weird, but just make sure we dont bother doing any re-formatting in this case (we've already done preventDefault in the keydown handler, so it wont actually submit the form or anything).
                 // ALSO: ignore keyup if readonly
-                if (e.which == keys.ENTER || that.element.readonly) {} else if (that.options.autoFormat && window.intlTelInputUtils) {
+                var which = whichKey(e);
+                if (which == keys.ENTER || that.element.readonly) {} else if (that.options.autoFormat && window.intlTelInputUtils) {
                     // cursorAtEnd defaults to false for bad browsers else they would never get a reformat on delete
                     var cursorAtEnd = that.isGoodBrowser && that.element.selectionStart == that.element.value.length;
                     if (!that.element.value) {
                         // if they just cleared the input, update the flag to the default
                         that._updateFlagFromNumber("");
-                    } else if (e.which == keys.DEL && !cursorAtEnd || e.which == keys.BSPACE) {
+                    } else if (which == keys.DEL && !cursorAtEnd || which == keys.BSPACE) {
                         // if delete in the middle: reformat with no suffix (no need to reformat if delete at end)
                         // if backspace: reformat with no suffix (need to reformat if at end to remove any lingering suffix - this is a feature)
                         // important to remember never to add suffix on any delete key as can fuck up in ie8 so you can never delete a formatting char at the end
@@ -834,7 +837,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     that._updateVal("+" + that.selectedCountryData.dialCode, null, true);
                     // after auto-inserting a dial code, if the first key they hit is '+' then assume they are entering a new number, so remove the dial code. use keypress instead of keydown because keydown gets triggered for the shift key (required to hit the + key), and instead of keyup because that shows the new '+' before removing the old one
                     var onElementPlusPressed = function(e) {
-                        if (e.which == keys.PLUS) {
+                        var which = whichKey(e);
+                        if (which == keys.PLUS) {
                             // if autoFormat is enabled, this key event will have already have been handled by another keypress listener (hence we need to add the "+"). if disabled, it will be handled after this by a keyup listener (hence no need to add the "+").
                             var newVal = that.options.autoFormat && window.intlTelInputUtils ? "+" : "";
                             // FIXME: tests still pass when this line is commented out -_-
@@ -955,22 +959,23 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // prevent down key from scrolling the whole page,
                 // and enter key from submitting a form etc
                 e.preventDefault();
-                if (e.which == keys.UP || e.which == keys.DOWN) {
+                var which = whichKey(e);
+                if (which == keys.UP || which == keys.DOWN) {
                     // up and down to navigate
-                    that._handleUpDownKey(e.which);
-                } else if (e.which == keys.ENTER) {
+                    that._handleUpDownKey(which);
+                } else if (which == keys.ENTER) {
                     // enter to select
                     that._handleEnterKey();
-                } else if (e.which == keys.ESC) {
+                } else if (which == keys.ESC) {
                     // esc to close
                     that._closeDropdown();
-                } else if (e.which >= keys.A && e.which <= keys.Z || e.which == keys.SPACE) {
+                } else if (which >= keys.A && which <= keys.Z || which == keys.SPACE) {
                     // upper case letters (note: keyup/keydown only return upper case letters)
                     // jump to countries that start with the query string
                     if (queryTimer) {
                         clearTimeout(queryTimer);
                     }
-                    query += String.fromCharCode(e.which);
+                    query += String.fromCharCode(which);
                     that._searchForCountry(query);
                     // if the timer hits 1 second, reset the query
                     queryTimer = setTimeout(function() {
