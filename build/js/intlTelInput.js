@@ -5,11 +5,27 @@ https://github.com/Bluefieldscom/intl-tel-input.git
 // wrap in UMD - see https://github.com/umdjs/umd/blob/master/jqueryPlugin.js
 (function(factory) {
     if (typeof define === "function" && define.amd) {
-        define([ "jquery" ], function($) {
-            factory($, window, document);
-        });
+        try {
+            define([ "jquery" ], function($) {
+                factory($, window, document);
+            });
+        } catch (ex) {
+            define([], function() {
+                factory(false, window, document);
+            });
+        }
+    } else if (typeof module !== "undefined") {
+        try {
+            factory(require("jquery"), window, document);
+        } catch (ex) {
+            factory(false, window, document);
+        }
     } else {
-        factory(typeof jQuery === "undefined" ? false : jQuery, window, document);
+        if (typeof jQuery !== "undefined") {
+            factory(jQuery, window, document);
+        } else {
+            factory(false, window, document);
+        }
     }
 })(function($, window, document, undefined) {
     "use strict";
@@ -266,46 +282,48 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         this.inputElement = element;
         instance._init();
     }
-    IntlTelInput.version = "6.0.8";
     // get the country data object
     IntlTelInput.getCountryData = function() {
         return allCountries;
     };
-    IntlTelInput.prototype.getSelectedCountryData = function() {
-        return this.instance.getSelectedCountryData();
-    };
-    IntlTelInput.prototype.isValidNumber = function() {
-        return this.instance.isValidNumber();
-    };
-    IntlTelInput.prototype.selectCountry = function(countryCode) {
-        return this.instance.selectCountry(countryCode);
-    };
-    IntlTelInput.prototype.getNumber = function(type) {
-        return this.instance.getNumber(type);
-    };
-    IntlTelInput.prototype.loadUtils = function(path) {
-        return this.instance.loadUtils(path);
-    };
-    IntlTelInput.prototype.getNumberType = function() {
-        return this.instance.getNumberType();
-    };
-    IntlTelInput.prototype.utilsLoaded = function() {
-        return this.instance.utilsLoaded();
-    };
-    IntlTelInput.prototype.getValidationError = function() {
-        return this.instance.getValidationError();
-    };
-    IntlTelInput.prototype.autoCountryLoaded = function() {
-        return this.instance.autoCountryLoaded();
-    };
-    IntlTelInput.prototype.getExtension = function() {
-        return this.instance.getExtension();
-    };
-    IntlTelInput.prototype.destroy = function() {
-        return this.instance.destroy();
-    };
-    IntlTelInput.prototype.setNumber = function(number, format, addSuffix, preventConversion, isAllowedKey) {
-        return this.instance.setNumber(number, format, addSuffix, preventConversion, isAllowedKey);
+    IntlTelInput.version = "6.0.8";
+    IntlTelInput.prototype = {
+        selectCountry: function(countryCode) {
+            return this.instance.selectCountry(countryCode);
+        },
+        getSelectedCountryData: function() {
+            return this.instance.getSelectedCountryData();
+        },
+        setNumber: function(number, format, addSuffix, preventConversion, isAllowedKey) {
+            return this.instance.setNumber(number, format, addSuffix, preventConversion, isAllowedKey);
+        },
+        getValidationError: function() {
+            return this.instance.getValidationError();
+        },
+        autoCountryLoaded: function() {
+            return this.instance.autoCountryLoaded();
+        },
+        isValidNumber: function() {
+            return this.instance.isValidNumber();
+        },
+        getNumber: function(type) {
+            return this.instance.getNumber(type);
+        },
+        loadUtils: function(path) {
+            return this.instance.loadUtils(path);
+        },
+        getNumberType: function() {
+            return this.instance.getNumberType();
+        },
+        getExtension: function() {
+            return this.instance.getExtension();
+        },
+        utilsLoaded: function() {
+            return this.instance.utilsLoaded();
+        },
+        destroy: function() {
+            return this.instance.destroy();
+        }
     };
     window.IntlTelInput = IntlTelInput;
     function Plugin(element, options) {
@@ -1509,4 +1527,5 @@ JSON.stringify(result);
             areaCodes: c[4] || null
         };
     }
+    return IntlTelInput;
 });

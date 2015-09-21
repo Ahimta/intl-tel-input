@@ -290,35 +290,37 @@ function IntlTelInput(element, options) {
   instance._init();
 }
 
-IntlTelInput.version = "<%= version %>";
-
 // get the country data object
 IntlTelInput.getCountryData = function() { return allCountries; };
+IntlTelInput.version = "<%= version %>";
 
-IntlTelInput.prototype.getSelectedCountryData = function() { return this.instance.getSelectedCountryData(); };
+IntlTelInput.prototype = {
 
-IntlTelInput.prototype.isValidNumber = function() { return this.instance.isValidNumber(); };
+  selectCountry: function(countryCode) { return this.instance.selectCountry(countryCode); },
 
-IntlTelInput.prototype.selectCountry = function(countryCode) { return this.instance.selectCountry(countryCode); };
+  getSelectedCountryData: function() { return this.instance.getSelectedCountryData(); },
 
-IntlTelInput.prototype.getNumber = function(type) { return this.instance.getNumber(type); };
+  setNumber: function(number, format, addSuffix, preventConversion, isAllowedKey) {
+    return this.instance.setNumber(number, format, addSuffix, preventConversion, isAllowedKey);
+  },
 
-IntlTelInput.prototype.loadUtils = function(path) { return this.instance.loadUtils(path); };
+  getValidationError: function() { return this.instance.getValidationError(); },
 
-IntlTelInput.prototype.getNumberType = function() { return this.instance.getNumberType(); };
+  autoCountryLoaded: function() { return this.instance.autoCountryLoaded(); },
 
-IntlTelInput.prototype.utilsLoaded = function() { return this.instance.utilsLoaded(); };
+  isValidNumber: function() { return this.instance.isValidNumber(); },
 
-IntlTelInput.prototype.getValidationError = function() { return this.instance.getValidationError(); };
+  getNumber: function(type) { return this.instance.getNumber(type); },
 
-IntlTelInput.prototype.autoCountryLoaded = function() { return this.instance.autoCountryLoaded(); };
+  loadUtils: function(path) { return this.instance.loadUtils(path); },
 
-IntlTelInput.prototype.getExtension = function() { return this.instance.getExtension(); };
+  getNumberType: function() { return this.instance.getNumberType(); },
 
-IntlTelInput.prototype.destroy = function() { return this.instance.destroy(); };
+  getExtension: function() { return this.instance.getExtension(); },
 
-IntlTelInput.prototype.setNumber = function(number, format, addSuffix, preventConversion, isAllowedKey) {
-  return this.instance.setNumber(number, format, addSuffix, preventConversion, isAllowedKey);
+  utilsLoaded: function() { return this.instance.utilsLoaded(); },
+
+  destroy: function() { return this.instance.destroy(); }
 };
 
 window.IntlTelInput = IntlTelInput;

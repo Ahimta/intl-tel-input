@@ -1,16 +1,31 @@
 // wrap in UMD - see https://github.com/umdjs/umd/blob/master/jqueryPlugin.js
 (function (factory) {
   if (typeof define === "function" && define.amd) {
-    define(["jquery"], function($) {
-      factory($, window, document);
-    });
-  } else {
-    factory(typeof (jQuery) === "undefined" ? false : jQuery, window, document);
+    try {
+      define(["jquery"], function($) {
+        factory($, window, document);
+      });
+    }
+    catch (ex) {
+      define([], function() {
+        factory(false, window, document);
+      });
+    }
+  }
+  else if (typeof (module) !== "undefined") {
+    try        { factory(require("jquery"), window, document); }
+    catch (ex) { factory(false, window, document);             }
+  }
+  else {
+    if (typeof (jQuery) !== "undefined") { factory(jQuery, window, document); }
+    else                                 { factory(false, window, document);  }
   }
 }(function ($, window, document, undefined) {
   "use strict";
 
   <%- plugin %>
   <%- data %>
+
+  return IntlTelInput;
 
 }));
