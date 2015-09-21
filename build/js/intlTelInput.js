@@ -216,7 +216,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
     }
     function removeEventListener(element, eventName, handler) {
         if (element.removeEventListener) {
-            element.removeEventListener(eventName, handler);
+            element.removeEventListener(eventName, handler, false);
         } else if (element.detachEvent) {
             element.detachEvent("on" + eventName, handler);
         } else {
@@ -1049,6 +1049,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             }
         },
         // find the first list item whose name starts with the query string
+        // NOTE: consider adding `data-country-name` atrribute and using [data-country-name^=<query>] css selector
         _searchForCountry: function(query) {
             for (var i = 0; i < this.countries.length; i++) {
                 if (this._startsWith(this.countries[i].name, query)) {
