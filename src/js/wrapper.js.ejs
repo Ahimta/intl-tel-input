@@ -5,7 +5,7 @@
       factory($, window, document);
     });
   } else {
-    factory(jQuery, window, document);
+    factory(typeof (jQuery) === "undefined" ? false : jQuery, window, document);
   }
 }(function ($, window, document, undefined) {
   "use strict";

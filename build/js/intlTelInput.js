@@ -9,7 +9,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             factory($, window, document);
         });
     } else {
-        factory(jQuery, window, document);
+        factory(typeof jQuery === "undefined" ? false : jQuery, window, document);
     }
 })(function($, window, document, undefined) {
     "use strict";
@@ -320,8 +320,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         this.isGoodBrowser = Boolean(element.setSelectionRange);
         this.hadInitialPlaceholder = element.hasAttribute("placeholder");
         this._name = pluginName;
-        // For some reason tests fail when `$(element)` is omitted
-        $(element);
+        // For some reason tests fail when this line is omitted
+        if ($) {
+            $(element);
+        }
     }
     Plugin.prototype = {
         _init: function() {
@@ -339,8 +341,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this.isMobile = /Android.+Mobile|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             // we return these deferred objects from the _init() call so they can be watched, and then we resolve them when each specific request returns
             // Note: again, jasmine had a spazz when I put these in the Plugin function
-            this.autoCountryDeferred = new $.Deferred();
-            this.utilsScriptDeferred = new $.Deferred();
+            if ($) {
+                this.autoCountryDeferred = new $.Deferred();
+                this.utilsScriptDeferred = new $.Deferred();
+            }
             // process all the data: onlyCountries, preferredCountries etc
             this._processCountryData();
             // generate the markup
@@ -352,7 +356,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // utils script, and auto country
             this._initRequests();
             // return the deferreds
-            return [ this.autoCountryDeferred, this.utilsScriptDeferred ];
+            if ($) {
+                return [ this.autoCountryDeferred, this.utilsScriptDeferred ];
+            }
         },
         /********************
    *  PRIVATE METHODS
@@ -563,12 +569,12 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         that.loadUtils();
                     });
                 }
-            } else {
+            } else if ($) {
                 this.utilsScriptDeferred.resolve();
             }
             if (this.options.defaultCountry == "auto") {
                 this._loadAutoCountry();
-            } else {
+            } else if ($) {
                 this.autoCountryDeferred.resolve();
             }
         },
@@ -598,7 +604,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         // TODO: this should just be the current instances
                         // UPDATE: use setTimeout in case their geoIpLookup function calls this callback straight away (e.g. if they have already done the geo ip lookup somewhere else). Using setTimeout means that the current thread of execution will finish before executing this, which allows the plugin to finish initialising.
                         setTimeout(function() {
-                            $(".intl-tel-input input").intlTelInput("autoCountryLoaded");
+                            forEach(allInstances, function(instance) {
+                                if (instance) {
+                                    instance.autoCountryLoaded();
+                                }
+                            });
                         });
                     });
                 }
@@ -1237,7 +1247,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             if (this.options.defaultCountry == "auto") {
                 this.options.defaultCountry = IntlTelInput.autoCountry;
                 this._setInitialState();
-                this.autoCountryDeferred.resolve();
+                if ($) {
+                    this.autoCountryDeferred.resolve();
+                }
             }
         },
         // remove plugin
@@ -1336,12 +1348,14 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // don't do this twice! (dont just check if the global intlTelInputUtils exists as if init plugin multiple times in quick succession, it may not have finished loading yet)
                 IntlTelInput.loadedUtilsScript = true;
                 var req = new XMLHttpRequest();
-                req.onreadystatechange = function() {
-                    // DONE state
-                    if (req.readyState == 4) {
-                        that.utilsScriptDeferred.resolve();
-                    }
-                };
+                if ($) {
+                    req.onreadystatechange = function() {
+                        // DONE state
+                        if (req.readyState == 4) {
+                            that.utilsScriptDeferred.resolve();
+                        }
+                    };
+                }
                 req.onload = function() {
                     if (req.status == 200) {
                         var script = document.createElement("script");
@@ -1358,10 +1372,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 req.open("GET", utilsScript);
                 req.setRequestHeader("Accept", "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01");
                 req.send();
-            } else {
-                if ($) {
-                    this.utilsScriptDeferred.resolve();
-                }
+            } else if ($) {
+                this.utilsScriptDeferred.resolve();
             }
         },
         // update the selected flag, and update the input val accordingly
@@ -1392,57 +1404,59 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this._updatePlaceholder();
         }
     };
-    // adapted to allow public functions
-    // using https://github.com/jquery-boilerplate/jquery-boilerplate/wiki/Extending-jQuery-Boilerplate
-    $.fn[pluginName] = function(options) {
-        var args = arguments;
-        // Is the first parameter an object (options), or was omitted,
-        // instantiate a new instance of the plugin.
-        if (options === undefined || typeof options === "object") {
-            var deferreds = [];
-            this.each(function() {
-                if (!$.data(this, "plugin_" + pluginName)) {
-                    var instance = new Plugin(this, options);
-                    var instanceDeferreds = instance._init();
-                    // we now have 2 deffereds: 1 for auto country, 1 for utils script
-                    deferreds.push(instanceDeferreds[0]);
-                    deferreds.push(instanceDeferreds[1]);
-                    $.data(this, "plugin_" + pluginName, instance);
-                }
-            });
-            // return the promise from the "master" deferred object that tracks all the others
-            return $.when.apply(null, deferreds);
-        } else if (typeof options === "string" && options[0] !== "_") {
-            // If the first parameter is a string and it doesn't start
-            // with an underscore or "contains" the `init`-function,
-            // treat this as a call to a public method.
-            // Cache the method call to make it possible to return a value
-            var returns;
-            this.each(function() {
-                var instance = $.data(this, "plugin_" + pluginName);
-                // Tests that there's already a plugin-instance
-                // and checks that the requested public method exists
-                if (instance instanceof Plugin && typeof instance[options] === "function") {
-                    // Call the method of our plugin instance,
-                    // and pass it the supplied arguments.
-                    returns = instance[options].apply(instance, Array.prototype.slice.call(args, 1));
-                }
-                // Allow instances to be destroyed via the 'destroy' method
-                if (options === "destroy") {
-                    $.data(this, "plugin_" + pluginName, null);
-                }
-            });
-            // If the earlier cached method gives a value back return the value,
-            // otherwise return this to preserve chainability.
-            return returns !== undefined ? returns : this;
-        }
-    };
-    /********************
- *  STATIC METHODS
- ********************/
-    // get the country data object
-    $.fn[pluginName].getCountryData = IntlTelInput.getCountryData;
-    $.fn[pluginName].version = IntlTelInput.version;
+    if ($) {
+        // adapted to allow public functions
+        // using https://github.com/jquery-boilerplate/jquery-boilerplate/wiki/Extending-jQuery-Boilerplate
+        $.fn[pluginName] = function(options) {
+            var args = arguments;
+            // Is the first parameter an object (options), or was omitted,
+            // instantiate a new instance of the plugin.
+            if (options === undefined || typeof options === "object") {
+                var deferreds = [];
+                this.each(function() {
+                    if (!$.data(this, "plugin_" + pluginName)) {
+                        var instance = new Plugin(this, options);
+                        var instanceDeferreds = instance._init();
+                        // we now have 2 deffereds: 1 for auto country, 1 for utils script
+                        deferreds.push(instanceDeferreds[0]);
+                        deferreds.push(instanceDeferreds[1]);
+                        $.data(this, "plugin_" + pluginName, instance);
+                    }
+                });
+                // return the promise from the "master" deferred object that tracks all the others
+                return $.when.apply(null, deferreds);
+            } else if (typeof options === "string" && options[0] !== "_") {
+                // If the first parameter is a string and it doesn't start
+                // with an underscore or "contains" the `init`-function,
+                // treat this as a call to a public method.
+                // Cache the method call to make it possible to return a value
+                var returns;
+                this.each(function() {
+                    var instance = $.data(this, "plugin_" + pluginName);
+                    // Tests that there's already a plugin-instance
+                    // and checks that the requested public method exists
+                    if (instance instanceof Plugin && typeof instance[options] === "function") {
+                        // Call the method of our plugin instance,
+                        // and pass it the supplied arguments.
+                        returns = instance[options].apply(instance, Array.prototype.slice.call(args, 1));
+                    }
+                    // Allow instances to be destroyed via the 'destroy' method
+                    if (options === "destroy") {
+                        $.data(this, "plugin_" + pluginName, null);
+                    }
+                });
+                // If the earlier cached method gives a value back return the value,
+                // otherwise return this to preserve chainability.
+                return returns !== undefined ? returns : this;
+            }
+        };
+        /********************
+   *  STATIC METHODS
+   ********************/
+        // get the country data object
+        $.fn[pluginName].getCountryData = IntlTelInput.getCountryData;
+        $.fn[pluginName].version = IntlTelInput.version;
+    }
     // Tell JSHint to ignore this warning: "character may get silently deleted by one or more browsers"
     // jshint -W100
     // Array of country objects for the flag dropdown.
