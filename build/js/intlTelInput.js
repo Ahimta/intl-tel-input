@@ -183,16 +183,16 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         }
     }
     function dispatchCustomEvent(element, eventName, bubbles, cancellable, data) {
-        var event;
-        if (window.CustomEvent) {
-            event = new CustomEvent(eventName, data);
-        } else if (document.createEvent) {
-            event = document.createEvent("CustomEvent");
-            event.initCustomEvent(eventName, bubbles, cancellable, data);
-        } else {
-            throw new Error("-_-");
+        if (window.CustomEvent || document.createEvent) {
+            var event;
+            if (window.CustomEvent) {
+                event = new CustomEvent(eventName, data);
+            } else if (document.createEvent) {
+                event = document.createEvent("CustomEvent");
+                event.initCustomEvent(eventName, bubbles, cancellable, data);
+            }
+            return element.dispatchEvent(event);
         }
-        return element.dispatchEvent(event);
     }
     function createHandler(element, fn) {
         if (element.addEventListener) {
