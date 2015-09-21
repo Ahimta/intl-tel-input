@@ -172,19 +172,63 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         }
     }
     function dispatchEvent(element, eventName, bubbles, cancellable) {
-        var e = document.createEvent("HTMLEvents");
-        e.initEvent(eventName, bubbles, cancellable);
-        return element.dispatchEvent(e);
+        if (document.createEvent) {
+            var event = document.createEvent("HTMLEvents");
+            event.initEvent(eventName, bubbles, cancellable);
+            element.dispatchEvent(event);
+        } else if (element.fireEvent) {
+            element.fireEvent("on" + eventName);
+        } else {
+            throw new Error("-_-");
+        }
     }
     function dispatchCustomEvent(element, eventName, bubbles, cancellable, data) {
         var event;
         if (window.CustomEvent) {
             event = new CustomEvent(eventName, data);
-        } else {
+        } else if (document.createEvent) {
             event = document.createEvent("CustomEvent");
             event.initCustomEvent(eventName, bubbles, cancellable, data);
+        } else {
+            throw new Error("-_-");
         }
         return element.dispatchEvent(event);
+    }
+    function createHandler(element, fn) {
+        if (element.addEventListener) {
+            return fn;
+        } else if (element.attachEvent) {
+            return function() {
+                fn.call(element);
+            };
+        } else {
+            throw new Error("-_-");
+        }
+    }
+    function addEventListener(element, eventName, handler) {
+        if (element.addEventListener) {
+            element.addEventListener(eventName, handler, false);
+        } else if (element.attachEvent) {
+            element.attachEvent("on" + eventName, handler);
+        } else {
+            throw new Error("-_-");
+        }
+    }
+    function removeEventListener(element, eventName, handler) {
+        if (element.removeEventListener) {
+            element.removeEventListener(eventName, handler);
+        } else if (element.detachEvent) {
+            element.detachEvent("on" + eventName, handler);
+        } else {
+            throw new Error("-_-");
+        }
+    }
+    function getOffset(element) {
+        var rect = element.getBoundingClientRect();
+        return {
+            top: rect.top + document.body.scrollTop,
+            left: rect.left + document.body.scrollLeft
+        };
     }
     var storage = {
         get: function(key) {
@@ -203,7 +247,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         }
     };
     // keep track of if the window.load event has fired as impossible to check after the fact
-    window.addEventListener("load", function() {
+    addEventListener(window, "load", function() {
         windowLoaded = true;
     });
     var methods = {
@@ -525,40 +569,40 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this._initFocusListeners();
             }
             if (this.isMobile) {
-                this._eventListeners.onMobileCountryListChange = function(e) {
+                this._eventListeners.onMobileCountryListChange = createHandler(this.countryList, function(e) {
                     var selectedItem = this.querySelector("option:checked");
                     if (selectedItem) {
                         that._selectListItem(selectedItem);
                     }
-                };
-                this.countryList.addEventListener("change", this._eventListeners.onMobileCountryListChange);
+                });
+                addEventListener(this.countryList, "change", this._eventListeners.onMobileCountryListChange);
             } else {
                 // hack for input nested inside label: clicking the selected-flag to open the dropdown would then automatically trigger a 2nd click on the input which would close it again
                 var label = getClosestLabel(this.element);
                 if (label) {
-                    this._eventListeners.onLabelClicked = function(e) {
+                    this._eventListeners.onLabelClicked = createHandler(function(e) {
                         // if the dropdown is closed, then focus the input, else ignore the click
                         if (hasClass(that.countryList, "hide")) {
                             that.element.focus();
                         } else {
                             e.preventDefault();
                         }
-                    };
-                    label.addEventListener("click", this._eventListeners.onLabelClicked);
+                    });
+                    addEventListener(label, "click", this._eventListeners.onLabelClicked);
                 }
                 // toggle country dropdown on click
-                this._eventListeners.onSelectedFlagClicked = function(e) {
+                this._eventListeners.onSelectedFlagClicked = createHandler(this.selectedFlag, function(e) {
                     // only intercept this event if we're opening the dropdown
                     // else let it bubble up to the top ("click-off-to-close" listener)
                     // we cannot just stopPropagation as it may be needed to close another instance
                     if (hasClass(that.countryList, "hide") && !that.element.disabled && !that.element.readonly) {
                         that._showDropdown();
                     }
-                };
-                this.selectedFlag.addEventListener("click", this._eventListeners.onSelectedFlagClicked);
+                });
+                addEventListener(this.selectedFlag, "click", this._eventListeners.onSelectedFlagClicked);
             }
             // open dropdown list if currently focused
-            this._eventListeners.onFlagKeydown = function(e) {
+            this._eventListeners.onFlagKeydown = createHandler(this.flagsContainer, function(e) {
                 var isDropdownHidden = hasClass(that.countryList, "hide");
                 var which = whichKey(e);
                 if (isDropdownHidden && (which == keys.UP || which == keys.DOWN || which == keys.SPACE || which == keys.ENTER)) {
@@ -572,8 +616,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (which == keys.TAB) {
                     that._closeDropdown();
                 }
-            };
-            this.flagsContainer.addEventListener("keydown", this._eventListeners.onFlagKeydown);
+            });
+            addEventListener(this.flagsContainer, "keydown", this._eventListeners.onFlagKeydown);
         },
         _initRequests: function() {
             var that = this;
@@ -584,9 +628,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     this.loadUtils();
                 } else {
                     // wait until the load event so we don't block any other requests e.g. the flags image
-                    window.addEventListener("load", function() {
+                    addEventListener(window, "load", createHandler(window, function() {
                         that.loadUtils();
-                    });
+                    }));
                 }
             } else if ($) {
                 this.utilsScriptDeferred.resolve();
@@ -640,7 +684,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // use keypress event as we want to ignore all input except for a select few keys,
                 // but we dont want to ignore the navigation keys like the arrows etc.
                 // NOTE: no point in refactoring this to only bind these listeners on focus/blur because then you would need to have those 2 listeners running the whole time anyway...
-                this._eventListeners.onElementKeypress = function(e) {
+                this._eventListeners.onElementKeypress = createHandler(this.element, function(e) {
                     // 32 is space, and after that it's all chars (not meta/nav keys)
                     // this fix is needed for Firefox, which triggers keypress event for some meta/nav keys
                     // Update: also ignore if this is a metaKey e.g. FF and Safari trigger keypress on the v of Ctrl+v
@@ -667,11 +711,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                             that._handleInvalidKey();
                         }
                     }
-                };
-                this.element.addEventListener("keypress", this._eventListeners.onElementKeypress);
+                });
+                addEventListener(this.element, "keypress", this._eventListeners.onElementKeypress);
             }
             // handle cut/paste event (now supported in all major browsers)
-            this._eventListeners.onElementCutOrPaste = function() {
+            this._eventListeners.onElementCutOrPaste = createHandler(this.element, function() {
                 // hack because "paste" event is fired before input is updated
                 setTimeout(function() {
                     if (that.options.autoFormat && window.intlTelInputUtils) {
@@ -684,13 +728,13 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         that._updateFlagFromNumber(that.element.value);
                     }
                 });
-            };
-            this.element.addEventListener("paste", this._eventListeners.onElementCutOrPaste);
-            this.element.addEventListener("cut", this._eventListeners.onElementCutOrPaste);
+            });
+            addEventListener(this.element, "paste", this._eventListeners.onElementCutOrPaste);
+            addEventListener(this.element, "cut", this._eventListeners.onElementCutOrPaste);
             // handle keyup event
             // if autoFormat enabled: we use keyup to catch delete events (after the fact)
             // if no autoFormat, this is used to update the flag
-            this._eventListeners.onElementKeyup = function(e) {
+            this._eventListeners.onElementKeyup = createHandler(this.element, function(e) {
                 // the "enter" key event from selecting a dropdown item is triggered here on the input, because the document.keydown handler that initially handles that event triggers a focus on the input, and so the keyup for that same key event gets triggered here. weird, but just make sure we dont bother doing any re-formatting in this case (we've already done preventDefault in the keydown handler, so it wont actually submit the form or anything).
                 // ALSO: ignore keyup if readonly
                 var which = whichKey(e);
@@ -711,8 +755,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     // if no autoFormat, just update flag
                     that._updateFlagFromNumber(that.element.value);
                 }
-            };
-            this.element.addEventListener("keyup", this._eventListeners.onElementKeyup);
+            });
+            addEventListener(this.element, "keyup", this._eventListeners.onElementKeyup);
         },
         // prevent deleting the plus (if not in nationalMode)
         _ensurePlus: function() {
@@ -815,19 +859,19 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _initFocusListeners: function() {
             var that = this;
             if (this.options.autoHideDialCode) {
-                this._eventListeners.onElementMousedown = function(e) {
+                this._eventListeners.onElementMousedown = createHandler(this.element, function(e) {
                     // FIXME: tests still pass when this statement is commented out -_-
                     if (!hasFocus(that.element) && !that.element.value) {
                         e.preventDefault();
                         // but this also cancels the focus, so we must trigger that manually
                         that.element.focus();
                     }
-                };
+                });
                 // mousedown decides where the cursor goes, so if we're focusing we must preventDefault as we'll be inserting the dial code, and we want the cursor to be at the end no matter where they click
-                this.element.addEventListener("mousedown", this._eventListeners.onElementMousedown);
+                addEventListener(this.element, "mousedown", this._eventListeners.onElementMousedown);
             }
             this._eventListeners.plusPressedListeners = [];
-            this._eventListeners.onElementFocused = function(e) {
+            this._eventListeners.onElementFocused = createHandler(this.element, function(e) {
                 var value = that.element.value;
                 // save this to compare on blur
                 // FIXME: tests pass when this line is commented out -_-
@@ -836,7 +880,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (that.options.autoHideDialCode && !value && !that.element.readonly && that.selectedCountryData.dialCode) {
                     that._updateVal("+" + that.selectedCountryData.dialCode, null, true);
                     // after auto-inserting a dial code, if the first key they hit is '+' then assume they are entering a new number, so remove the dial code. use keypress instead of keydown because keydown gets triggered for the shift key (required to hit the + key), and instead of keyup because that shows the new '+' before removing the old one
-                    var onElementPlusPressed = function(e) {
+                    var onElementPlusPressed = createHandler(that.element, function(e) {
                         var which = whichKey(e);
                         if (which == keys.PLUS) {
                             // if autoFormat is enabled, this key event will have already have been handled by another keypress listener (hence we need to add the "+"). if disabled, it will be handled after this by a keyup listener (hence no need to add the "+").
@@ -845,8 +889,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                             that.element.value = newVal;
                         }
                         that.element.removeEventListener("keypress", onElementPlusPressed);
-                    };
-                    that.element.addEventListener("keypress", onElementPlusPressed);
+                    });
+                    addEventListener(that.element, "keypress", onElementPlusPressed);
                     that._eventListeners.plusPressedListeners.push(onElementPlusPressed);
                     // after tabbing in, make sure the cursor is at the end we must use setTimeout to get outside of the focus handler as it seems the selection happens after that
                     setTimeout(function() {
@@ -857,8 +901,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         }
                     });
                 }
-            };
-            this._eventListeners.onElementBlurred = function() {
+            });
+            this._eventListeners.onElementBlurred = createHandler(this.element, function() {
                 if (that.options.autoHideDialCode) {
                     // on blur: if just a dial code then remove it
                     var value = that.element.value, startsPlus = value.charAt(0) == "+";
@@ -880,9 +924,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 if (that.options.autoFormat && window.intlTelInputUtils && that.element.value != that.element.getAttribute("data-focus-val")) {
                     dispatchEvent(that.element, "change", true, false);
                 }
-            };
-            this.element.addEventListener("focus", this._eventListeners.onElementFocused);
-            this.element.addEventListener("blur", this._eventListeners.onElementBlurred);
+            });
+            addEventListener(this.element, "focus", this._eventListeners.onElementFocused);
+            addEventListener(this.element, "blur", this._eventListeners.onElementBlurred);
         },
         // extract the numeric digits from the given string
         _getNumeric: function(s) {
@@ -914,7 +958,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // decide where to position dropdown (depends on position within viewport, and scroll)
         _setDropdownPosition: function() {
-            var inputTop = this.element.getBoundingClientRect().top, windowTop = getWindowScrollTop(), // dropdownFitsBelow = (dropdownBottom < windowBottom)
+            var inputTop = getOffset(this.element).top, windowTop = getWindowScrollTop(), // dropdownFitsBelow = (dropdownBottom < windowBottom)
             dropdownFitsBelow = inputTop + this.element.offsetHeight + this.dropdownHeight < windowTop + getWindowInnerHeight(), dropdownFitsAbove = inputTop - this.dropdownHeight > windowTop;
             // dropdownHeight - 1 for border
             // FIXME: cssTop sometimes has two leading negative signs (e.g: --1px)
@@ -934,7 +978,6 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 that._selectListItem(this);
             };
             forEach(this.countryListItems, function(element) {
-                // FIXME: tests still pass when this line is commented out -_-
                 element.addEventListener("click", that._eventListeners.onDesktopCountryItemClicked);
                 element.addEventListener("mouseover", that._eventListeners.onListItemMouseover);
             });
@@ -942,20 +985,20 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // (except when this initial opening click is bubbling up)
             // we cannot just stopPropagation as it may be needed to close another instance
             var isOpening = true;
-            this._eventListeners.onHtmlClicked = function(e) {
+            this._eventListeners.onHtmlClicked = createHandler(document, function(e) {
                 if (!isOpening) {
                     that._closeDropdown();
                 }
                 isOpening = false;
-            };
-            document.addEventListener("click", this._eventListeners.onHtmlClicked);
+            });
+            addEventListener(document, "click", this._eventListeners.onHtmlClicked);
             // listen for up/down scrolling, enter to select, or letters to jump to country name.
             // use keydown as keypress doesn't fire for non-char keys and we want to catch if they
             // just hit down and hold it to scroll down (no keyup event).
             // listen on the document because that's where key events are triggered if no input has focus
             // FIXME: maybe it's better to only preventDefault() if we know how to handle the key
             var query = "", queryTimer = null;
-            this._eventListeners.onDocumentKeydown = function(e) {
+            this._eventListeners.onDocumentKeydown = createHandler(document, function(e) {
                 // prevent down key from scrolling the whole page,
                 // and enter key from submitting a form etc
                 e.preventDefault();
@@ -982,8 +1025,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         query = "";
                     }, 1e3);
                 }
-            };
-            document.addEventListener("keydown", this._eventListeners.onDocumentKeydown);
+            });
+            addEventListener(document, "keydown", this._eventListeners.onDocumentKeydown);
         },
         // highlight the next/prev item in the list (and ensure it is visible)
         _handleUpDownKey: function(key) {
@@ -1194,7 +1237,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // check if an element is visible within it's container, else scroll until it is
         _scrollTo: function(element, middle) {
-            var container = this.countryList, containerHeight = container.clientHeight, containerTop = container.getBoundingClientRect().top, containerBottom = containerTop + containerHeight, elementHeight = element.offsetHeight, elementTop = element.getBoundingClientRect().top, elementBottom = elementTop + elementHeight, newScrollTop = elementTop - containerTop + container.scrollTop, middleOffset = containerHeight / 2 - elementHeight / 2;
+            var container = this.countryList, containerHeight = container.clientHeight, containerTop = getOffset(container).top, containerBottom = containerTop + containerHeight, elementHeight = element.offsetHeight, elementTop = getOffset(element).top, elementBottom = elementTop + elementHeight, newScrollTop = elementTop - containerTop + container.scrollTop, middleOffset = containerHeight / 2 - elementHeight / 2;
             if (elementTop < containerTop) {
                 // scroll up
                 if (middle) {
@@ -1380,7 +1423,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     };
                 }
                 req.onload = function() {
-                    if (req.status == 200) {
+                    if (req.status >= 200 && req.status < 400) {
                         var script = document.createElement("script");
                         script.innerHTML = req.responseText;
                         document.body.appendChild(script);
@@ -1392,7 +1435,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         });
                     }
                 };
-                req.open("GET", utilsScript);
+                req.open("GET", utilsScript, true);
                 req.setRequestHeader("Accept", "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01");
                 req.send();
             } else if ($) {
