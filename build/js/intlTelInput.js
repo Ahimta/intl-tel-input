@@ -223,6 +223,20 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             throw new Error("-_-");
         }
     }
+    function stopPropagation(event) {
+        if (event.stopPropagation) {
+            event.stopPropagation();
+        } else {
+            event.cancelBubble = true;
+        }
+    }
+    function preventDefault(event) {
+        if (event.preventDefault) {
+            event.preventDefault();
+        } else {
+            event.returnValue = false;
+        }
+    }
     function getOffset(element) {
         var rect = element.getBoundingClientRect();
         return {
@@ -585,7 +599,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                         if (hasClass(that.countryList, "hide")) {
                             that.element.focus();
                         } else {
-                            e.preventDefault();
+                            preventDefault(e);
                         }
                     });
                     addEventListener(label, "click", this._eventListeners.onLabelClicked);
@@ -607,9 +621,9 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 var which = whichKey(e);
                 if (isDropdownHidden && (which == keys.UP || which == keys.DOWN || which == keys.SPACE || which == keys.ENTER)) {
                     // prevent form from being submitted if "ENTER" was pressed
-                    e.preventDefault();
+                    preventDefault(e);
                     // prevent event from being handled again by document
-                    e.stopPropagation();
+                    stopPropagation(e);
                     that._showDropdown();
                 }
                 // allow navigation from dropdown to input on TAB
@@ -692,7 +706,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     // Update: also check that we have utils before we do any autoFormat stuff
                     var which = whichKey(e);
                     if (which >= keys.SPACE && !e.ctrlKey && !e.metaKey && window.intlTelInputUtils && !that.element.readonly) {
-                        e.preventDefault();
+                        preventDefault(e);
                         // allowed keys are just numeric keys and plus
                         // we must allow plus for the case where the user does select-all and then hits plus to start typing a new number. we could refine this logic to first check that the selection contains a plus, but that wont work in old browsers, and I think it's overkill anyway
                         var isAllowedKey = which >= keys.ZERO && which <= keys.NINE || which == keys.PLUS, input = that.element, noSelection = that.isGoodBrowser && input.selectionStart == input.selectionEnd, max = that.element.maxlength || that.element.getAttribute("maxlength"), val = that.element.value, // assumes that if max exists, it is >0
@@ -862,7 +876,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 this._eventListeners.onElementMousedown = createHandler(this.element, function(e) {
                     // FIXME: tests still pass when this statement is commented out -_-
                     if (!hasFocus(that.element) && !that.element.value) {
-                        e.preventDefault();
+                        preventDefault(e);
                         // but this also cancels the focus, so we must trigger that manually
                         that.element.focus();
                     }
@@ -1001,7 +1015,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             this._eventListeners.onDocumentKeydown = createHandler(document, function(e) {
                 // prevent down key from scrolling the whole page,
                 // and enter key from submitting a form etc
-                e.preventDefault();
+                preventDefault(e);
                 var which = whichKey(e);
                 if (which == keys.UP || which == keys.DOWN) {
                     // up and down to navigate

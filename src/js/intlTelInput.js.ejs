@@ -204,6 +204,16 @@ function removeEventListener(element, eventName, handler) {
   else                                  { throw new Error("-_-");                                 }
 }
 
+function stopPropagation(event) {
+  if (event.stopPropagation) { event.stopPropagation();   }
+  else                       { event.cancelBubble = true; }
+}
+
+function preventDefault(event) {
+  if (event.preventDefault) { event.preventDefault();    }
+  else                      { event.returnValue = false; }
+}
+
 function getOffset(element) {
   var rect = element.getBoundingClientRect();
 
@@ -632,7 +642,7 @@ Plugin.prototype = {
           if (hasClass(that.countryList, "hide")) {
             that.element.focus();
           } else {
-            e.preventDefault();
+            preventDefault(e);
           }
         });
 
@@ -663,10 +673,10 @@ Plugin.prototype = {
           which == keys.SPACE || which == keys.ENTER)
       ) {
         // prevent form from being submitted if "ENTER" was pressed
-        e.preventDefault();
+        preventDefault(e);
 
         // prevent event from being handled again by document
-        e.stopPropagation();
+        stopPropagation(e);
 
         that._showDropdown();
       }
@@ -767,7 +777,7 @@ Plugin.prototype = {
         var which = whichKey(e);
 
         if (which >= keys.SPACE && !e.ctrlKey && !e.metaKey && window.intlTelInputUtils && !that.element.readonly) {
-          e.preventDefault();
+          preventDefault(e);
           // allowed keys are just numeric keys and plus
           // we must allow plus for the case where the user does select-all and then hits plus to start typing a new number. we could refine this logic to first check that the selection contains a plus, but that wont work in old browsers, and I think it's overkill anyway
           var isAllowedKey = ((which >= keys.ZERO && which <= keys.NINE) || which == keys.PLUS),
@@ -982,7 +992,7 @@ Plugin.prototype = {
 
         // FIXME: tests still pass when this statement is commented out -_-
         if (!hasFocus(that.element) && !that.element.value) {
-          e.preventDefault();
+          preventDefault(e);
           // but this also cancels the focus, so we must trigger that manually
           that.element.focus();
         }
@@ -1172,7 +1182,7 @@ Plugin.prototype = {
     this._eventListeners.onDocumentKeydown = createHandler(document, function(e) {
       // prevent down key from scrolling the whole page,
       // and enter key from submitting a form etc
-      e.preventDefault();
+      preventDefault(e);
 
       var which = whichKey(e);
 
