@@ -159,6 +159,14 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             fn(elements[i]);
         }
     }
+    function first(elements, fn) {
+        for (var i = 0; i < elements.length; i++) {
+            var element = elements[i];
+            if (fn(element)) {
+                return element;
+            }
+        }
+    }
     function hasFocus(element) {
         return element.parentNode && element.parentNode.querySelector(":focus") === element;
     }
@@ -249,15 +257,17 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         get: function(key) {
             if (window.localStorage) {
                 return window.localStorage.getItem(key);
+            } else if ($.cookie) {
+                return $.cookie(key);
             } else {
                 return "";
             }
         },
-        set: function(key, value) {
+        set: function(key, value, options) {
             if (window.localStorage) {
                 return window.localStorage.setItem(key, value);
-            } else {
-                return "";
+            } else if ($.cookie) {
+                return $.cookie(key, value, options);
             }
         }
     };
@@ -266,6 +276,14 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         windowLoaded = true;
     });
     var methods = {
+        getListItemByCode: function(countryList, countryCode) {
+            // unfortunately IE8 doesn't support :not css selector -_-
+            var listItems = countryList.querySelectorAll("[data-country-code=" + countryCode + "]");
+            var listItem = first(listItems, function(item) {
+                return !hasClass(item, "preferred");
+            });
+            return listItem;
+        },
         getDropdownHeight: function(countryList) {
             var height;
             countryList.className = "country-list v-hide";
@@ -1094,8 +1112,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         _searchForCountry: function(query) {
             for (var i = 0; i < this.countries.length; i++) {
                 if (this._startsWith(this.countries[i].name, query)) {
-                    var selector = "[data-country-code=" + this.countries[i].iso2 + "]:not(.preferred)";
-                    var listItem = this.countryList.querySelector(selector);
+                    var listItem = methods.getListItemByCode(this.countryList, this.countries[i].iso2);
                     // update highlighting and scroll
                     if (listItem) {
                         this._highlightListItem(listItem);
