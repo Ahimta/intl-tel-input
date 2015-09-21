@@ -14,7 +14,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
 })(function($, window, document, undefined) {
     "use strict";
     // these vars persist through all instances of the plugin
-    var pluginName = "intlTelInput", id = 1, // give each instance it's own id for namespaced event handling
+    var pluginName = "intlTelInput", id = 0, // give each instance it's own id for calling some methods on all instances
     defaults = {
         // typing digits after a valid number will be added to the extension part of the number
         allowExtensions: false,
@@ -56,7 +56,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         CMD1: 91,
         // Chrome
         CMD2: 224
-    }, windowLoaded = false;
+    }, windowLoaded = false, allInstances = [];
     function extend(object1, object2) {
         var newObject = {};
         var oldObjects = [ object1, object2 ];
@@ -312,8 +312,10 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         this.element = element;
         this.options = extend(defaults, options);
         this._defaults = defaults;
-        // event namespace
-        this.ns = "." + pluginName + id++;
+        // unique identifier for this instance
+        allInstances[id] = this;
+        this.id = id;
+        id++;
         // Chrome, FF, Safari, IE9+
         this.isGoodBrowser = Boolean(element.setSelectionRange);
         this.hadInitialPlaceholder = element.hasAttribute("placeholder");
@@ -1240,6 +1242,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         },
         // remove plugin
         destroy: function() {
+            allInstances[this.id] = null;
             if (!this.isMobile) {
                 // make sure the dropdown is closed (and unbind listeners)
                 this._closeDropdown();
@@ -1332,21 +1335,33 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             if (!IntlTelInput.loadedUtilsScript && utilsScript) {
                 // don't do this twice! (dont just check if the global intlTelInputUtils exists as if init plugin multiple times in quick succession, it may not have finished loading yet)
                 IntlTelInput.loadedUtilsScript = true;
-                // dont use $.getScript as it prevents caching
-                $.ajax({
-                    url: utilsScript,
-                    success: function() {
-                        // tell all instances the utils are ready
-                        $(".intl-tel-input input").intlTelInput("utilsLoaded");
-                    },
-                    complete: function() {
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function() {
+                    // DONE state
+                    if (req.readyState == 4) {
                         that.utilsScriptDeferred.resolve();
-                    },
-                    dataType: "script",
-                    cache: true
-                });
+                    }
+                };
+                req.onload = function() {
+                    if (req.status == 200) {
+                        var script = document.createElement("script");
+                        script.innerHTML = req.responseText;
+                        document.body.appendChild(script);
+                        // tell all instances the utils are ready
+                        forEach(allInstances, function(instance) {
+                            if (instance) {
+                                instance.utilsLoaded();
+                            }
+                        });
+                    }
+                };
+                req.open("GET", utilsScript);
+                req.setRequestHeader("Accept", "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01");
+                req.send();
             } else {
-                this.utilsScriptDeferred.resolve();
+                if ($) {
+                    this.utilsScriptDeferred.resolve();
+                }
             }
         },
         // update the selected flag, and update the input val accordingly
