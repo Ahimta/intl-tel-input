@@ -902,7 +902,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                             // FIXME: tests still pass when this line is commented out -_-
                             that.element.value = newVal;
                         }
-                        that.element.removeEventListener("keypress", onElementPlusPressed);
+                        removeEventListener(that.element, "keypress", onElementPlusPressed);
                     });
                     addEventListener(that.element, "keypress", onElementPlusPressed);
                     that._eventListeners.plusPressedListeners.push(onElementPlusPressed);
@@ -929,7 +929,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     }
                     // remove the keypress listener we added on focus
                     forEach(that._eventListeners.plusPressedListeners, function(listener) {
-                        that.element.removeEventListener("keypress", listener);
+                        removeEventListener(that.element, "keypress", listener);
                     });
                     that._eventListeners.plusPressedListeners = [];
                 }
@@ -1239,15 +1239,15 @@ https://github.com/Bluefieldscom/intl-tel-input.git
             // FIXME: tests still pass when this line is commented out -_-
             removeClass(this.arrow, "up");
             // unbind key events
-            document.removeEventListener("keydown", this._eventListeners.onDocumentKeydown);
+            removeEventListener(document, "keydown", this._eventListeners.onDocumentKeydown);
             // unbind click-off-to-close
-            document.removeEventListener("click", this._eventListeners.onHtmlClicked);
+            removeEventListener(document, "click", this._eventListeners.onHtmlClicked);
             // unbind hover and click listeners
             var onDesktopCountryItemClicked = this._eventListeners.onDesktopCountryItemClicked;
             var onListItemMouseover = this._eventListeners.onListItemMouseover;
             forEach(this.countryListItems, function(element) {
-                element.removeEventListener("mouseover", onListItemMouseover);
-                element.removeEventListener("click", onDesktopCountryItemClicked);
+                removeEventListener(element, "mouseover", onListItemMouseover);
+                removeEventListener(element, "click", onDesktopCountryItemClicked);
             });
         },
         // check if an element is visible within it's container, else scroll until it is
@@ -1340,36 +1340,36 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 // make sure the dropdown is closed (and unbind listeners)
                 this._closeDropdown();
             }
-            this.element.removeEventListener("paste", this._eventListeners.onElementCutOrPaste);
-            this.element.removeEventListener("cut", this._eventListeners.onElementCutOrPaste);
-            this.element.removeEventListener("keyup", this._eventListeners.onElementKeyup);
+            removeEventListener(this.element, "paste", this._eventListeners.onElementCutOrPaste);
+            removeEventListener(this.element, "cut", this._eventListeners.onElementCutOrPaste);
+            removeEventListener(this.element, "keyup", this._eventListeners.onElementKeyup);
             // key events, and focus/blur events if autoHideDialCode=true
             if (this.options.autoHideDialCode || this.options.autoFormat) {
                 var element = this.element;
-                element.removeEventListener("focus", this._eventListeners.onElementFocused);
-                element.removeEventListener("blur", this._eventListeners.onElementBlurred);
+                removeEventListener(element, "focus", this._eventListeners.onElementFocused);
+                removeEventListener(element, "blur", this._eventListeners.onElementBlurred);
                 forEach(this._eventListeners.plusPressedListeners, function(listener) {
-                    element.removeEventListener("keypress", listener);
+                    removeEventListener(element, "keypress", listener);
                 });
                 this._eventListeners.plusPressedListeners = [];
             }
             if (this.options.autoHideDialCode) {
-                this.element.removeEventListener("mousedown", this._eventListeners.onElementMousedown);
+                removeEventListener(this.element, "mousedown", this._eventListeners.onElementMousedown);
             }
             if (this.options.autoFormat) {
-                this.element.removeEventListener("keypress", this._eventListeners.onElementKeypress);
+                removeEventListener(this.element, "keypress", this._eventListeners.onElementKeypress);
             }
             if (this.isMobile) {
                 // change event on select country
-                this.countryList.removeEventListener("change", this._eventListeners.onMobileCountryListChange);
+                removeEventListener(this.countryList, "change", this._eventListeners.onMobileCountryListChange);
             } else {
                 // label click hack
                 var label = getClosestLabel(this.element);
                 // click event to open dropdown
-                this.flagsContainer.removeEventListener("keydown", this._eventListeners.onFlagKeydown);
-                this.selectedFlag.removeEventListener("click", this.onSelectedFlagClicked);
+                removeEventListener(this.flagsContainer, "keydown", this._eventListeners.onFlagKeydown);
+                removeEventListener(this.selectedFlag, "click", this.onSelectedFlagClicked);
                 if (label) {
-                    label.removeEventListener("click", this._eventListeners.onLabelClicked);
+                    removeEventListener(label, "click", this._eventListeners.onLabelClicked);
                 }
             }
             // remove markup
