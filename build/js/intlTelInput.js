@@ -257,7 +257,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         get: function(key) {
             if (window.localStorage) {
                 return window.localStorage.getItem(key);
-            } else if ($.cookie) {
+            } else if ($ && $.cookie) {
                 return $.cookie(key);
             } else {
                 return "";
@@ -266,7 +266,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         set: function(key, value, options) {
             if (window.localStorage) {
                 return window.localStorage.setItem(key, value);
-            } else if ($.cookie) {
+            } else if ($ && $.cookie) {
                 return $.cookie(key, value, options);
             }
         }
