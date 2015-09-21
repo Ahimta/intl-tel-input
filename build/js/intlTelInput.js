@@ -162,11 +162,12 @@ https://github.com/Bluefieldscom/intl-tel-input.git
     function hasFocus(element) {
         return element.parentNode && element.parentNode.querySelector(":focus") === element;
     }
-    function getClosestLabel(element) {
-        if (element.tagName === "label") {
+    // tagName is lowercased
+    function getClosest(element, tagName) {
+        if (element.tagName && element.tagName.toLowerCase() === tagName) {
             return element;
         } else if (element.parentNode) {
-            return getClosestLabel(element.parentNode);
+            return getClosest(element.parentNode, tagName);
         } else {
             return null;
         }
@@ -592,7 +593,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 addEventListener(this.countryList, "change", this._eventListeners.onMobileCountryListChange);
             } else {
                 // hack for input nested inside label: clicking the selected-flag to open the dropdown would then automatically trigger a 2nd click on the input which would close it again
-                var label = getClosestLabel(this.element);
+                var label = getClosest(this.element, "label");
                 if (label) {
                     this._eventListeners.onLabelClicked = createHandler(function(e) {
                         // if the dropdown is closed, then focus the input, else ignore the click
@@ -982,18 +983,44 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         // we only bind dropdown listeners when the dropdown is open
         _bindDropdownListeners: function() {
             var that = this;
-            // when mouse over a list item, just highlight that one
-            // we add the class "highlight", so if they hit "enter" we know which one to select
-            this._eventListeners.onListItemMouseover = function(e) {
-                that._highlightListItem(this);
-            };
-            // listen for country selection
-            this._eventListeners.onDesktopCountryItemClicked = function(e) {
-                that._selectListItem(this);
-            };
+            if (Element.prototype.addEventListener) {
+                // when mouse over a list item, just highlight that one
+                // we add the class "highlight", so if they hit "enter" we know which one to select
+                this._eventListeners.onListItemMouseover = function(e) {
+                    // FIXME: tests still pass when this element is commented out -_-
+                    that._highlightListItem(this);
+                };
+                // listen for country selection
+                this._eventListeners.onDesktopCountryItemClicked = function(e) {
+                    that._selectListItem(this);
+                };
+            } else {
+                // when mouse over a list item, just highlight that one
+                // we add the class "highlight", so if they hit "enter" we know which one to select
+                this._eventListeners.onListItemMouseover = function(e) {
+                    // since IE8 doesn't bind `this` to the clicked element, we have to do some traversing, or add an event listener
+                    // for each item -_-
+                    var target = e.currentTarget || e.target || e.srcElement;
+                    var listItem = getClosest(target, "li");
+                    // FIXME: tests still pass when this element is commented out -_-
+                    if (listItem) {
+                        that._highlightListItem(listItem);
+                    }
+                };
+                // listen for country selection
+                this._eventListeners.onDesktopCountryItemClicked = function(e) {
+                    // since IE8 doesn't bind `this` to the clicked element, we have to do some traversing, or add an event listener
+                    // for each item -_-
+                    var target = e.currentTarget || e.target || e.srcElement;
+                    var listItem = getClosest(target, "li");
+                    if (listItem) {
+                        that._selectListItem(listItem);
+                    }
+                };
+            }
             forEach(this.countryListItems, function(element) {
-                element.addEventListener("click", that._eventListeners.onDesktopCountryItemClicked);
-                element.addEventListener("mouseover", that._eventListeners.onListItemMouseover);
+                addEventListener(element, "click", that._eventListeners.onDesktopCountryItemClicked);
+                addEventListener(element, "mouseover", that._eventListeners.onListItemMouseover);
             });
             // click off to close
             // (except when this initial opening click is bubbling up)
@@ -1364,7 +1391,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 removeEventListener(this.countryList, "change", this._eventListeners.onMobileCountryListChange);
             } else {
                 // label click hack
-                var label = getClosestLabel(this.element);
+                var label = getClosest(this.element, "label");
                 // click event to open dropdown
                 removeEventListener(this.flagsContainer, "keydown", this._eventListeners.onFlagKeydown);
                 removeEventListener(this.selectedFlag, "click", this.onSelectedFlagClicked);
