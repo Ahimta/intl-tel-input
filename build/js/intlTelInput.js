@@ -207,8 +207,8 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         if (element.addEventListener) {
             return fn;
         } else if (element.attachEvent) {
-            return function() {
-                fn.call(element);
+            return function(event) {
+                fn.call(element, event);
             };
         } else {
             throw new Error("-_-");
