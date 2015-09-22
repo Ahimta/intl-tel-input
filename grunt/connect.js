@@ -6,9 +6,7 @@ module.exports = function(grunt) {
         hostname: "localhost",
         base: ".",
         port: 9000,
-        open: {
-          target: "http://localhost:9000/demo.html"
-        }
+        open: "http://localhost:9000/demo.html"
       }
     }
   };
