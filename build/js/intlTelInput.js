@@ -6,11 +6,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
 (function(factory) {
     if (typeof define === "function" && define.amd) {
         try {
-            define([ "jquery" ], function($) {
+            define("intl-tel-input", [ "jquery" ], function($) {
                 factory($, window, document);
             });
         } catch (ex) {
-            define([], function() {
+            define("intl-tel-input", function() {
                 factory(false, window, document);
             });
         }
@@ -171,11 +171,11 @@ https://github.com/Bluefieldscom/intl-tel-input.git
         return element.parentNode && element.parentNode.querySelector(":focus") === element;
     }
     // tagName is lowercased
-    function getClosest(element, tagName) {
+    function getClosestParent(element, tagName) {
         if (element.tagName && element.tagName.toLowerCase() === tagName) {
             return element;
         } else if (element.parentNode) {
-            return getClosest(element.parentNode, tagName);
+            return getClosestParent(element.parentNode, tagName);
         } else {
             return null;
         }
@@ -611,7 +611,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 addEventListener(this.countryList, "change", this._eventListeners.onMobileCountryListChange);
             } else {
                 // hack for input nested inside label: clicking the selected-flag to open the dropdown would then automatically trigger a 2nd click on the input which would close it again
-                var label = getClosest(this.element, "label");
+                var label = getClosestParent(this.element, "label");
                 if (label) {
                     this._eventListeners.onLabelClicked = createHandler(function(e) {
                         // if the dropdown is closed, then focus the input, else ignore the click
@@ -1019,7 +1019,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     // since IE8 doesn't bind `this` to the clicked element, we have to do some traversing, or add an event listener
                     // for each item -_-
                     var target = e.currentTarget || e.target || e.srcElement;
-                    var listItem = getClosest(target, "li");
+                    var listItem = getClosestParent(target, "li");
                     // FIXME: tests still pass when this element is commented out -_-
                     if (listItem) {
                         that._highlightListItem(listItem);
@@ -1030,7 +1030,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                     // since IE8 doesn't bind `this` to the clicked element, we have to do some traversing, or add an event listener
                     // for each item -_-
                     var target = e.currentTarget || e.target || e.srcElement;
-                    var listItem = getClosest(target, "li");
+                    var listItem = getClosestParent(target, "li");
                     if (listItem) {
                         that._selectListItem(listItem);
                     }
@@ -1408,7 +1408,7 @@ https://github.com/Bluefieldscom/intl-tel-input.git
                 removeEventListener(this.countryList, "change", this._eventListeners.onMobileCountryListChange);
             } else {
                 // label click hack
-                var label = getClosest(this.element, "label");
+                var label = getClosestParent(this.element, "label");
                 // click event to open dropdown
                 removeEventListener(this.flagsContainer, "keydown", this._eventListeners.onFlagKeydown);
                 removeEventListener(this.selectedFlag, "click", this.onSelectedFlagClicked);

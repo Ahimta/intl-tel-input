@@ -2,12 +2,12 @@
 (function (factory) {
   if (typeof define === "function" && define.amd) {
     try {
-      define(["jquery"], function($) {
+      define("intl-tel-input", ["jquery"], function($) {
         factory($, window, document);
       });
     }
     catch (ex) {
-      define([], function() {
+      define("intl-tel-input", function() {
         factory(false, window, document);
       });
     }
